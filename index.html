@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WBS・ガントチャートツール デモ | TOKZUM</title>
+    <title>タスク管理テンプレート デモ | TOKZUM</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #ffffff;
@@ -21,10 +21,9 @@
             --border: #e2e8f0;
             --shadow: 0 4px 16px rgba(0,0,0,0.06);
             --radius: 8px;
+            --orange: #e67e22;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Noto Sans JP', sans-serif;
             color: var(--text);
@@ -32,203 +31,404 @@
             line-height: 1.6;
         }
 
-        /* ========== Hero ========== */
-        .hero {
-            background: linear-gradient(135deg, var(--accent) 0%, #2c5282 100%);
+        /* ========== Top Bar ========== */
+        .topbar {
+            background: var(--accent);
             color: #fff;
-            padding: 80px 40px 60px;
-            text-align: center;
-        }
-        .hero-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
-            padding: 4px 16px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            letter-spacing: 0.5px;
-        }
-        .hero h1 {
-            font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        .hero p {
-            font-size: 16px;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto 30px;
-        }
-        .hero-stats {
+            padding: 10px 32px;
             display: flex;
-            justify-content: center;
-            gap: 48px;
-            margin-top: 30px;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .hero-stat .num {
+        .topbar-logo {
             font-family: 'Inter', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 2px;
         }
-        .hero-stat .label {
+        .topbar-nav {
+            display: flex;
+            gap: 4px;
+        }
+        .topbar-nav button {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            padding: 8px 16px;
             font-size: 13px;
-            opacity: 0.8;
+            font-family: 'Noto Sans JP', sans-serif;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
         }
-
-        /* ========== Container ========== */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
+        .topbar-nav button.active {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
         }
-
-        /* ========== Section ========== */
-        .section {
-            padding: 60px 0;
+        .topbar-nav button:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
         }
-        .section-title {
-            font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 8px;
-        }
-        .section-sub {
-            color: var(--text-sub);
-            font-size: 14px;
-            margin-bottom: 32px;
-        }
-
-        /* ========== Cards ========== */
-        .card {
-            background: var(--bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 28px;
-            margin-bottom: 24px;
-        }
-        .card-header {
+        .topbar-right {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 16px;
         }
-        .card-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+        .topbar-date {
+            opacity: 0.8;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+        }
+        .topbar-user {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-        .card-icon.blue { background: #ebf4ff; }
-        .card-icon.green { background: #f0fff4; }
-        .card-icon.orange { background: #fffbeb; }
-        .card-title {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 600;
         }
 
-        /* ========== 3-Sheet Structure ========== */
-        .sheets-grid {
+        /* ========== View Panels ========== */
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        /* ========== Dashboard ========== */
+        .dashboard { padding: 32px; }
+        .dash-header {
+            margin-bottom: 28px;
+        }
+        .dash-header h1 {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .dash-header p {
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+        .dash-kpi-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
         }
-        @media (max-width: 900px) {
-            .sheets-grid { grid-template-columns: 1fr; }
+        .kpi-card {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px 24px;
+            position: relative;
+            overflow: hidden;
         }
-        .sheet-card {
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+        .kpi-card.kpi-total::before { background: var(--accent); }
+        .kpi-card.kpi-done::before { background: var(--success); }
+        .kpi-card.kpi-active::before { background: var(--orange); }
+        .kpi-card.kpi-late::before { background: var(--error); }
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-sub);
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .kpi-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .kpi-card.kpi-total .kpi-value { color: var(--accent); }
+        .kpi-card.kpi-done .kpi-value { color: var(--success); }
+        .kpi-card.kpi-active .kpi-value { color: var(--orange); }
+        .kpi-card.kpi-late .kpi-value { color: var(--error); }
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 4px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+        .dash-card {
             background: var(--bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             padding: 24px;
-            border-top: 4px solid var(--accent);
-            transition: transform 0.2s;
         }
-        .sheet-card:hover { transform: translateY(-2px); }
-        .sheet-num {
+        .dash-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dash-card-title .icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .dash-card-title .icon.blue { background: #ebf4ff; }
+        .dash-card-title .icon.orange { background: #fef3cd; }
+        .dash-card-title .icon.green { background: #d4edda; }
+        .dash-card-title .icon.red { background: #f8d7da; }
+
+        /* Mini progress */
+        .mini-progress-list { list-style: none; }
+        .mini-progress-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .mini-progress-item:last-child { border-bottom: none; }
+        .mini-progress-label { flex: 1; }
+        .mini-bar {
+            width: 100px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .mini-bar-fill { height: 100%; border-radius: 3px; }
+        .mini-pct {
             font-family: 'Inter', sans-serif;
             font-size: 12px;
             font-weight: 600;
+            width: 36px;
+            text-align: right;
+        }
+
+        /* Alert list */
+        .alert-list { list-style: none; }
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .alert-item:last-child { border-bottom: none; }
+        .alert-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+        .alert-dot.red { background: var(--error); }
+        .alert-dot.orange { background: var(--orange); }
+        .alert-dot.blue { background: var(--accent); }
+        .alert-detail {
+            color: var(--text-sub);
+            font-size: 11px;
+        }
+
+        /* Today tasks */
+        .today-task {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            transition: background 0.15s;
+            cursor: default;
+        }
+        .today-task:hover { background: var(--bg-sub); }
+        .today-check {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .today-check.checked {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+        .today-task-name { flex: 1; }
+        .today-task-name.done {
+            text-decoration: line-through;
+            color: var(--text-sub);
+        }
+        .today-task-person {
+            font-size: 11px;
+            background: var(--bg-sub);
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: var(--text-sub);
+        }
+
+        /* ========== Step Flow (Dashboard) ========== */
+        .step-flow {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .step-flow-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .step-flow-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr;
+            gap: 0;
+            align-items: center;
+        }
+        .step-box {
+            background: var(--bg-sub);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .step-box:hover { border-color: var(--accent); }
+        .step-box.current {
+            border-color: var(--accent);
+            background: #ebf4ff;
+        }
+        .step-box-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .step-box-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
             color: var(--accent);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 8px;
         }
-        .sheet-name {
-            font-size: 18px;
+        .step-box-name {
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin: 4px 0;
         }
-        .sheet-desc {
-            color: var(--text-sub);
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-        .feature-list {
-            list-style: none;
-            font-size: 13px;
-        }
-        .feature-list li {
-            padding: 4px 0;
-            padding-left: 20px;
-            position: relative;
+        .step-box-sub {
+            font-size: 12px;
             color: var(--text-sub);
         }
-        .feature-list li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--success);
-            font-weight: 700;
+        .step-box-tool {
+            font-size: 11px;
+            background: var(--accent);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .step-arrow {
+            font-size: 24px;
+            color: var(--accent);
+            text-align: center;
+            padding: 0 8px;
         }
 
-        /* ========== Tab Navigation ========== */
-        .tab-nav {
+        /* ========== WBS View ========== */
+        .wbs-view { padding: 24px 32px; }
+        .view-header {
             display: flex;
-            border-bottom: 2px solid var(--border);
-            margin-bottom: 24px;
-            gap: 0;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
-        .tab-btn {
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-sub);
-            background: none;
-            border: none;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            transition: all 0.2s;
+        .view-header h2 {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .view-header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .filter-select {
+            padding: 7px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
             font-family: 'Noto Sans JP', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
         }
-        .tab-btn.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
+        .btn {
+            padding: 7px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Noto Sans JP', sans-serif;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.15s;
         }
-        .tab-btn:hover {
-            color: var(--accent);
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
         }
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
-
-        /* ========== WBS Table ========== */
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: var(--radius);
+        .btn-primary:hover { background: var(--accent-light); }
+        .btn-outline {
+            background: var(--bg);
+            color: var(--text);
             border: 1px solid var(--border);
         }
+        .btn-outline:hover { background: var(--bg-sub); }
+
+        .wbs-card {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* Table styles */
+        .table-wrap { overflow-x: auto; }
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            white-space: nowrap;
         }
         thead th {
             background: var(--accent);
@@ -237,27 +437,56 @@
             text-align: left;
             font-weight: 600;
             font-size: 12px;
+            white-space: nowrap;
             position: sticky;
             top: 0;
         }
         tbody td {
             padding: 10px 14px;
             border-bottom: 1px solid var(--border);
+            white-space: nowrap;
         }
+        tbody tr { transition: background 0.1s; }
         tbody tr:hover { background: #f7fafc; }
+        tbody tr.row-done { opacity: 0.6; }
 
         /* Status badges */
         .status {
             display: inline-block;
             padding: 3px 10px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
         }
         .status-done { background: #c6f6d5; color: var(--success); }
         .status-active { background: #fefcbf; color: var(--warning); }
         .status-todo { background: #e2e8f0; color: #718096; }
         .status-late { background: #fed7d7; color: var(--error); }
+        .status-hold { background: #e9d8fd; color: #6b46c1; }
+
+        /* Phase tags */
+        .phase-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .phase-inquiry { background: #e2efda; color: #276749; }
+        .phase-order { background: #fce4d6; color: #975a16; }
+        .phase-construction { background: #f2dcdb; color: #c53030; }
+
+        /* Priority */
+        .priority {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .priority-high { background: #fed7d7; color: var(--error); }
+        .priority-mid { background: #fefcbf; color: var(--warning); }
+        .priority-low { background: #e2e8f0; color: #718096; }
 
         /* Progress bar */
         .progress-bar {
@@ -275,7 +504,7 @@
             transition: width 0.5s ease;
         }
         .progress-fill.low { background: var(--error); }
-        .progress-fill.mid { background: var(--warning); }
+        .progress-fill.mid { background: var(--orange); }
         .progress-fill.high { background: var(--success); }
         .progress-text {
             font-family: 'Inter', sans-serif;
@@ -285,109 +514,292 @@
             vertical-align: middle;
         }
 
-        /* ========== Gantt Chart ========== */
-        .gantt-wrapper {
-            overflow-x: auto;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
+        /* Editable cell */
+        .editable {
+            cursor: pointer;
+            position: relative;
+        }
+        .editable:hover { background: #edf2f7; }
+        .editable select, .editable input {
+            width: 100%;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 12px;
+            font-family: 'Noto Sans JP', sans-serif;
+            background: #fff;
+        }
+
+        /* ========== Gantt View ========== */
+        .gantt-view { padding: 24px 32px; }
+
+        .gantt-card {
             background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
-        .gantt-table {
-            min-width: 1200px;
-        }
+        .gantt-wrapper { overflow-x: auto; }
+        .gantt-table { min-width: 1400px; border-collapse: collapse; }
         .gantt-table thead th {
             padding: 6px 0;
             text-align: center;
             font-size: 11px;
-            min-width: 28px;
+            min-width: 24px;
         }
         .gantt-table thead th.month-header {
             background: #1a365d;
             font-size: 13px;
             font-weight: 700;
         }
-        .gantt-table thead th.weekend {
-            background: #2d4a7a;
-        }
-        .gantt-table thead th.today-header {
-            background: var(--error);
-        }
+        .gantt-table thead th.weekend { background: #2d4a7a; }
+        .gantt-table thead th.today-header { background: var(--error); }
         .gantt-table thead th.task-col {
             min-width: auto;
             text-align: left;
-            padding: 6px 12px;
+            padding: 6px 10px;
         }
         .gantt-table tbody td {
-            padding: 8px 0;
+            padding: 6px 0;
             text-align: center;
             border-bottom: 1px solid var(--border);
-            min-width: 28px;
+            min-width: 24px;
             position: relative;
+            white-space: nowrap;
         }
         .gantt-table tbody td.task-cell {
             text-align: left;
-            padding: 8px 12px;
-            white-space: nowrap;
+            padding: 6px 10px;
             min-width: auto;
         }
-        .gantt-bar {
-            height: 18px;
-            border-radius: 3px;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            left: 1px;
-            right: 1px;
-        }
-        .gantt-bar.plan { background: #4299e1; }
-        .gantt-bar.progress { background: #ed8936; }
-        .gantt-bar.done { background: #48bb78; }
         .gantt-cell-plan { background: #ebf8ff; }
         .gantt-cell-progress { background: #feebc8; }
         .gantt-cell-done { background: #c6f6d5; }
         .gantt-cell-weekend { background: #f7fafc; }
-        .gantt-cell-today {
-            border-left: 3px solid var(--error) !important;
-        }
+        .gantt-cell-today { border-left: 3px solid var(--error) !important; }
         .gantt-table tbody td.task-cell.task-name-col {
             font-weight: 500;
-            max-width: 180px;
+            max-width: 160px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
-        /* ========== Task Library ========== */
-        .phase-tag {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 600;
+        .gantt-legend {
+            padding: 12px 16px;
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: var(--text-sub);
+            border-bottom: 1px solid var(--border);
+            align-items: center;
         }
-        .phase-inquiry { background: #e2efda; color: #276749; }
-        .phase-order { background: #fce4d6; color: #975a16; }
-        .phase-construction { background: #f2dcdb; color: #c53030; }
+        .gantt-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .gantt-legend-box {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
 
-        /* ========== Workflow ========== */
-        .workflow {
+        /* ========== Timeboxing View ========== */
+        .timeboxing-view { padding: 24px 32px; }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 60px repeat(5, 1fr);
+            gap: 0;
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .cal-header {
+            background: var(--accent);
+            color: #fff;
+            padding: 12px 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .cal-header.today-col { background: var(--error); }
+        .cal-time-col {
+            border-right: 1px solid var(--border);
+        }
+        .cal-time {
+            height: 60px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: var(--text-sub);
+            border-bottom: 1px solid var(--border);
+        }
+        .cal-day-col {
+            border-right: 1px solid var(--border);
+            position: relative;
+        }
+        .cal-slot {
+            height: 60px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        .cal-event {
+            position: absolute;
+            left: 3px;
+            right: 3px;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            overflow: hidden;
+            z-index: 2;
+            cursor: default;
+            line-height: 1.3;
+        }
+        .cal-event.meeting {
+            background: #dbeafe;
+            border-left: 3px solid var(--accent);
+            color: var(--accent);
+        }
+        .cal-event.task-block {
+            background: #fef3cd;
+            border-left: 3px solid var(--orange);
+            color: #92400e;
+        }
+        .cal-event.focus-block {
+            background: #d1fae5;
+            border-left: 3px solid var(--success);
+            color: var(--success);
+        }
+        .cal-event-title { font-weight: 600; }
+        .cal-event-detail { font-size: 10px; opacity: 0.8; }
+        .cal-now-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--error);
+            z-index: 3;
+        }
+        .cal-now-dot {
+            position: absolute;
+            left: -4px;
+            top: -3px;
+            width: 8px;
+            height: 8px;
+            background: var(--error);
+            border-radius: 50%;
+        }
+
+        /* Timeboxing tips */
+        .tb-tips {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
+            gap: 16px;
+            margin-top: 20px;
         }
-        @media (max-width: 900px) {
-            .workflow { grid-template-columns: 1fr; }
+        .tb-tip {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            text-align: center;
         }
-        .workflow-step {
+        .tb-tip-icon { font-size: 28px; margin-bottom: 8px; }
+        .tb-tip-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .tb-tip-desc { font-size: 12px; color: var(--text-sub); }
+
+        /* ========== Task Library View ========== */
+        .library-view { padding: 24px 32px; }
+
+        /* ========== Modal ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--bg);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            width: 480px;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 28px;
+        }
+        .modal h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .modal-field {
+            margin-bottom: 14px;
+        }
+        .modal-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+        .modal-field input, .modal-field select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* ========== Routine Panel ========== */
+        .routine-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .routine-card {
             background: var(--bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             padding: 24px;
-            text-align: center;
-            position: relative;
         }
-        .workflow-num {
-            width: 36px;
-            height: 36px;
+        .routine-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .routine-step {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            align-items: flex-start;
+        }
+        .routine-step:last-child { border-bottom: none; }
+        .routine-num {
+            width: 24px;
+            height: 24px;
             background: var(--accent);
             color: #fff;
             border-radius: 50%;
@@ -395,326 +807,359 @@
             align-items: center;
             justify-content: center;
             font-family: 'Inter', sans-serif;
+            font-size: 12px;
             font-weight: 700;
-            font-size: 16px;
-            margin: 0 auto 12px;
+            flex-shrink: 0;
         }
-        .workflow-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-        .workflow-time {
-            font-family: 'Inter', sans-serif;
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-        .workflow-desc {
-            color: var(--text-sub);
-            font-size: 13px;
-        }
-
-        /* ========== Roadmap ========== */
-        .roadmap {
+        .kpt-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-        @media (max-width: 900px) {
-            .roadmap { grid-template-columns: 1fr; }
-        }
-        .roadmap-card {
-            background: var(--bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 24px;
-            border-left: 4px solid var(--accent);
-        }
-        .roadmap-phase {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        .roadmap-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .roadmap-desc {
-            color: var(--text-sub);
-            font-size: 13px;
-        }
-        .roadmap-card.current { border-left-color: var(--success); }
-        .roadmap-card.current .roadmap-phase { color: var(--success); }
-
-        /* ========== Footer ========== */
-        .footer {
-            background: var(--accent);
-            color: rgba(255,255,255,0.8);
-            text-align: center;
-            padding: 32px 24px;
-            font-size: 13px;
-        }
-        .footer strong {
-            color: #fff;
-        }
-
-        /* ========== Filter Controls ========== */
-        .filter-bar {
-            display: flex;
             gap: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            align-items: center;
         }
-        .filter-bar label {
+        .kpt-box {
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+        .kpt-box.keep { background: #d1fae5; }
+        .kpt-box.problem { background: #fee2e2; }
+        .kpt-box.try-box { background: #dbeafe; }
+        .kpt-label {
+            font-family: 'Inter', sans-serif;
             font-size: 13px;
-            font-weight: 600;
-            color: var(--text-sub);
+            font-weight: 700;
+            margin-bottom: 4px;
         }
-        .filter-bar select {
-            padding: 6px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: 'Noto Sans JP', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-        }
+        .kpt-sub { font-size: 11px; color: var(--text-sub); }
 
-        /* ========== Animations ========== */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
+        /* ========== Responsive ========== */
+        @media (max-width: 1024px) {
+            .dash-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .dash-grid { grid-template-columns: 1fr; }
+            .step-flow-grid { grid-template-columns: 1fr; gap: 12px; }
+            .step-arrow { transform: rotate(90deg); }
+            .tb-tips { grid-template-columns: 1fr; }
+            .routine-grid { grid-template-columns: 1fr; }
         }
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
+        @media (max-width: 768px) {
+            .topbar-nav { display: none; }
+            .dashboard { padding: 16px; }
+            .wbs-view, .gantt-view, .timeboxing-view, .library-view { padding: 16px; }
+            .dash-kpi-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
 
-<!-- Hero -->
-<section class="hero">
-    <div class="hero-badge">DEMO VERSION v1.0</div>
-    <h1>WBS・ガントチャートツール</h1>
-    <p>SS部の業務フロー（引合～クロージング）を一元管理する<br>Excel連動型タスク管理ツール</p>
-    <div class="hero-stats">
-        <div class="hero-stat">
-            <div class="num">55</div>
-            <div class="label">タスクマスタ</div>
-        </div>
-        <div class="hero-stat">
-            <div class="num">3</div>
-            <div class="label">シート構成</div>
-        </div>
-        <div class="hero-stat">
-            <div class="num">5 min</div>
-            <div class="label">毎日の運用</div>
-        </div>
+<!-- Top Bar -->
+<div class="topbar">
+    <div class="topbar-logo">TOKZUM</div>
+    <div class="topbar-nav" id="main-nav">
+        <button class="active" data-view="dashboard">Dashboard</button>
+        <button data-view="wbs">WBS</button>
+        <button data-view="gantt">Gantt Chart</button>
+        <button data-view="timeboxing">Timeboxing</button>
+        <button data-view="library">Task Library</button>
     </div>
-</section>
-
-<!-- 3-Sheet Structure -->
-<section class="section">
-    <div class="container">
-        <div class="section-title fade-in">3シート構成</div>
-        <div class="section-sub fade-in">タスクライブラリ → WBS → ガントチャート の連動で二重入力不要</div>
-
-        <div class="sheets-grid">
-            <div class="sheet-card fade-in">
-                <div class="sheet-num">Sheet 1</div>
-                <div class="sheet-name">タスクライブラリ</div>
-                <div class="sheet-desc">SS部業務フローから抽出した55タスクを一元管理するマスタシート</div>
-                <ul class="feature-list">
-                    <li>フェーズ別色分け表示</li>
-                    <li>標準所要日数・担当部門を定義</li>
-                    <li>フィルター機能で絞り込み</li>
-                    <li>タスクの追加・編集・削除対応</li>
-                </ul>
-            </div>
-            <div class="sheet-card fade-in">
-                <div class="sheet-num">Sheet 2</div>
-                <div class="sheet-name">WBS</div>
-                <div class="sheet-desc">プルダウン選択でタスクを登録し、ステータス・進捗を管理</div>
-                <ul class="feature-list">
-                    <li>タスクライブラリからプルダウン選択</li>
-                    <li>ステータス5段階管理</li>
-                    <li>進捗率の自動色分け</li>
-                    <li>所要日数の自動計算</li>
-                    <li>入力バリデーション</li>
-                </ul>
-            </div>
-            <div class="sheet-card fade-in">
-                <div class="sheet-num">Sheet 3</div>
-                <div class="sheet-name">ガントチャート</div>
-                <div class="sheet-desc">WBSの内容を自動反映し、スケジュールを視覚的に表示</div>
-                <ul class="feature-list">
-                    <li>WBS自動連動（数式参照）</li>
-                    <li>計画バー / 進捗バー / 完了バー</li>
-                    <li>今日線で現在位置を表示</li>
-                    <li>土日グレー表示</li>
-                    <li>3ヶ月分の日別カレンダー</li>
-                </ul>
-            </div>
-        </div>
+    <div class="topbar-right">
+        <div class="topbar-date" id="topbar-date"></div>
+        <div class="topbar-user">田</div>
     </div>
-</section>
+</div>
 
-<!-- Demo Tabs -->
-<section class="section" style="background: var(--bg);">
-    <div class="container">
-        <div class="section-title fade-in">デモ画面</div>
-        <div class="section-sub fade-in">サンプル案件「〇〇物流センター新設案件」のデータで各シートを再現</div>
+<!-- ===== Dashboard ===== -->
+<div class="view-panel active" id="view-dashboard">
+    <div class="dashboard">
+        <div class="dash-header">
+            <h1>Dashboard</h1>
+            <p>〇〇物流センター新設案件 - 案件ID: PRJ-2026-001</p>
+        </div>
 
-        <div class="card fade-in">
-            <div class="tab-nav">
-                <button class="tab-btn active" data-tab="gantt">ガントチャート</button>
-                <button class="tab-btn" data-tab="wbs">WBS</button>
-                <button class="tab-btn" data-tab="library">タスクライブラリ</button>
-            </div>
+        <!-- KPI Cards -->
+        <div class="dash-kpi-grid" id="kpi-area"></div>
 
-            <!-- Gantt Tab -->
-            <div class="tab-panel active" id="tab-gantt">
-                <div class="filter-bar">
-                    <label>表示:</label>
-                    <select id="gantt-filter">
-                        <option value="all">すべて</option>
-                        <option value="done">完了のみ</option>
-                        <option value="active">進行中のみ</option>
-                        <option value="todo">未着手のみ</option>
-                    </select>
-                    <span style="font-size: 12px; color: var(--text-sub); margin-left: auto;">
-                        <span style="display:inline-block;width:12px;height:12px;background:#4299e1;border-radius:2px;vertical-align:middle;"></span> 計画
-                        <span style="display:inline-block;width:12px;height:12px;background:#ed8936;border-radius:2px;vertical-align:middle;margin-left:12px;"></span> 実績
-                        <span style="display:inline-block;width:12px;height:12px;background:#48bb78;border-radius:2px;vertical-align:middle;margin-left:12px;"></span> 完了
-                        <span style="display:inline-block;width:12px;height:12px;background:#c53030;border-radius:2px;vertical-align:middle;margin-left:12px;"></span> 今日
-                    </span>
+        <!-- 3-Step Flow -->
+        <div class="step-flow">
+            <div class="step-flow-title">3ステップ運用フロー</div>
+            <div class="step-flow-grid">
+                <div class="step-box current" data-view-link="wbs">
+                    <div class="step-box-icon">&#128203;</div>
+                    <div class="step-box-label">Step 1</div>
+                    <div class="step-box-name">WBS</div>
+                    <div class="step-box-sub">やるべきことの確定</div>
+                    <div class="step-box-tool">Excel</div>
                 </div>
-                <div class="gantt-wrapper" id="gantt-chart"></div>
-            </div>
-
-            <!-- WBS Tab -->
-            <div class="tab-panel" id="tab-wbs">
-                <div class="filter-bar">
-                    <label>ステータス:</label>
-                    <select id="wbs-filter-status">
-                        <option value="all">すべて</option>
-                        <option value="完了">完了</option>
-                        <option value="進行中">進行中</option>
-                        <option value="未着手">未着手</option>
-                    </select>
-                    <label>担当者:</label>
-                    <select id="wbs-filter-person">
-                        <option value="all">すべて</option>
-                        <option value="田中">田中</option>
-                        <option value="佐藤">佐藤</option>
-                        <option value="鈴木">鈴木</option>
-                    </select>
+                <div class="step-arrow">&#10145;</div>
+                <div class="step-box" data-view-link="gantt">
+                    <div class="step-box-icon">&#128202;</div>
+                    <div class="step-box-label">Step 2</div>
+                    <div class="step-box-name">Gantt Chart</div>
+                    <div class="step-box-sub">4週間の負荷・締切の見える化</div>
+                    <div class="step-box-tool">Excel</div>
                 </div>
-                <div class="table-wrapper" id="wbs-table"></div>
-            </div>
-
-            <!-- Library Tab -->
-            <div class="tab-panel" id="tab-library">
-                <div class="filter-bar">
-                    <label>フェーズ:</label>
-                    <select id="lib-filter-phase">
-                        <option value="all">すべて</option>
-                        <option value="引合～提案">引合～提案</option>
-                        <option value="受注">受注</option>
-                        <option value="工事">工事</option>
-                    </select>
+                <div class="step-arrow">&#10145;</div>
+                <div class="step-box" data-view-link="timeboxing">
+                    <div class="step-box-icon">&#128197;</div>
+                    <div class="step-box-label">Step 3</div>
+                    <div class="step-box-name">Timeboxing</div>
+                    <div class="step-box-sub">個人カレンダーへの作業枠確保</div>
+                    <div class="step-box-tool">Outlook</div>
                 </div>
-                <div class="table-wrapper" id="library-table"></div>
+            </div>
+        </div>
+
+        <!-- Grid: Progress + Alerts -->
+        <div class="dash-grid">
+            <div class="dash-card">
+                <div class="dash-card-title">
+                    <div class="icon blue">&#128202;</div>
+                    フェーズ別進捗
+                </div>
+                <ul class="mini-progress-list" id="phase-progress"></ul>
+            </div>
+            <div class="dash-card">
+                <div class="dash-card-title">
+                    <div class="icon red">&#9888;</div>
+                    アラート・通知
+                </div>
+                <ul class="alert-list" id="alert-list"></ul>
+            </div>
+        </div>
+
+        <!-- Today's Tasks -->
+        <div class="dash-card">
+            <div class="dash-card-title">
+                <div class="icon green">&#9745;</div>
+                今日のタスク (3/19)
+            </div>
+            <div id="today-tasks"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== WBS View ===== -->
+<div class="view-panel" id="view-wbs">
+    <div class="wbs-view">
+        <div class="view-header">
+            <h2>WBS - 案件WBS</h2>
+            <div class="view-header-actions">
+                <select class="filter-select" id="wbs-filter-phase">
+                    <option value="all">全フェーズ</option>
+                    <option value="引合～提案">引合～提案</option>
+                    <option value="受注">受注</option>
+                    <option value="工事">工事</option>
+                </select>
+                <select class="filter-select" id="wbs-filter-status">
+                    <option value="all">全ステータス</option>
+                    <option value="完了">完了</option>
+                    <option value="進行中">進行中</option>
+                    <option value="未着手">未着手</option>
+                    <option value="遅延">遅延</option>
+                </select>
+                <select class="filter-select" id="wbs-filter-person">
+                    <option value="all">全担当者</option>
+                </select>
+                <button class="btn btn-primary" id="btn-add-task">+ タスク追加</button>
+            </div>
+        </div>
+        <div class="wbs-card">
+            <div class="table-wrap" id="wbs-table"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Gantt View ===== -->
+<div class="view-panel" id="view-gantt">
+    <div class="gantt-view">
+        <div class="view-header">
+            <h2>Gantt Chart</h2>
+            <div class="view-header-actions">
+                <select class="filter-select" id="gantt-filter">
+                    <option value="all">すべて</option>
+                    <option value="done">完了のみ</option>
+                    <option value="active">進行中のみ</option>
+                    <option value="todo">未着手のみ</option>
+                </select>
+            </div>
+        </div>
+        <div class="gantt-card">
+            <div class="gantt-legend">
+                <div class="gantt-legend-item"><div class="gantt-legend-box" style="background:#4299e1"></div> 計画</div>
+                <div class="gantt-legend-item"><div class="gantt-legend-box" style="background:#ed8936"></div> 実績(進行中)</div>
+                <div class="gantt-legend-item"><div class="gantt-legend-box" style="background:#48bb78"></div> 完了</div>
+                <div class="gantt-legend-item"><div class="gantt-legend-box" style="background:var(--error);width:3px;height:14px"></div> 今日</div>
+                <div class="gantt-legend-item" style="margin-left:auto;font-size:11px;color:var(--text-sub);">
+                    ← スクロールで日付移動 →
+                </div>
+            </div>
+            <div class="gantt-wrapper" id="gantt-chart"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Timeboxing View ===== -->
+<div class="view-panel" id="view-timeboxing">
+    <div class="timeboxing-view">
+        <div class="view-header">
+            <h2>Timeboxing - 週間カレンダー</h2>
+            <div class="view-header-actions">
+                <span style="font-size:13px;color:var(--text-sub)">2026年3月 第4週</span>
+            </div>
+        </div>
+
+        <div class="calendar-grid" id="calendar-grid"></div>
+
+        <div class="tb-tips">
+            <div class="tb-tip">
+                <div class="tb-tip-icon">&#9201;</div>
+                <div class="tb-tip-title">会議以外もブロックする</div>
+                <div class="tb-tip-desc">「思考」「作成」「レビュー」の時間を確保する</div>
+            </div>
+            <div class="tb-tip">
+                <div class="tb-tip-icon">&#128218;</div>
+                <div class="tb-tip-title">ブロックサイズは60-120分</div>
+                <div class="tb-tip-desc">深い集中が必要な作業にはまとまった時間を</div>
+            </div>
+            <div class="tb-tip">
+                <div class="tb-tip-icon">&#127991;</div>
+                <div class="tb-tip-title">命名規則の統一</div>
+                <div class="tb-tip-desc">[案件名] タスク / 成果物</div>
+            </div>
+        </div>
+
+        <!-- Routine -->
+        <div class="routine-grid">
+            <div class="routine-card">
+                <h4>&#9728; Monday Morning Routine (30min)</h4>
+                <div class="routine-step">
+                    <div class="routine-num">1</div>
+                    <div><strong>Excelを並び替え</strong><br><span style="font-size:12px;color:var(--text-sub)">期限順（昇順）にソートし、優先順位を明確化</span></div>
+                </div>
+                <div class="routine-step">
+                    <div class="routine-num">2</div>
+                    <div><strong>Top 3の特定</strong><br><span style="font-size:12px;color:var(--text-sub)">今週必ず完了させるべき3つの成果物を決定</span></div>
+                </div>
+                <div class="routine-step">
+                    <div class="routine-num">3</div>
+                    <div><strong>タイムボクシング</strong><br><span style="font-size:12px;color:var(--text-sub)">Outlookを開き、Top 3のための時間をブロック</span></div>
+                </div>
+                <div class="routine-step">
+                    <div class="routine-num">4</div>
+                    <div><strong>論点の共有</strong><br><span style="font-size:12px;color:var(--text-sub)">Teamsで「今週の課題」を共有し、無駄な会議をキャンセル</span></div>
+                </div>
+            </div>
+            <div class="routine-card">
+                <h4>&#128338; Daily KPT (5min)</h4>
+                <p style="font-size:12px;color:var(--text-sub);margin-bottom:16px">計画は常に変化するため、日次KPTはWBSを「生きた計画」に保つための微修正メカニズム</p>
+                <div class="kpt-grid">
+                    <div class="kpt-box keep">
+                        <div class="kpt-label">Keep</div>
+                        <div class="kpt-sub">良かったこと</div>
+                    </div>
+                    <div class="kpt-box problem">
+                        <div class="kpt-label">Problem</div>
+                        <div class="kpt-sub">進行を妨げたこと</div>
+                    </div>
+                    <div class="kpt-box try-box">
+                        <div class="kpt-label">Try</div>
+                        <div class="kpt-sub">明日の調整</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- Workflow -->
-<section class="section">
-    <div class="container">
-        <div class="section-title fade-in">想定運用フロー</div>
-        <div class="section-sub fade-in">導入後の日常運用は毎日わずか5分</div>
-
-        <div class="workflow">
-            <div class="workflow-step fade-in">
-                <div class="workflow-num">1</div>
-                <div class="workflow-title">初期セットアップ</div>
-                <div class="workflow-time">1回のみ</div>
-                <div class="workflow-desc">タスクライブラリの確認・追加 → WBSに案件・タスクを登録 → 担当者・期限を設定</div>
-            </div>
-            <div class="workflow-step fade-in">
-                <div class="workflow-num">2</div>
-                <div class="workflow-title">毎日の運用</div>
-                <div class="workflow-time">約5分</div>
-                <div class="workflow-desc">WBSを開く → ステータスと進捗率を更新 → ガントチャートで全体進捗を確認</div>
-            </div>
-            <div class="workflow-step fade-in">
-                <div class="workflow-num">3</div>
-                <div class="workflow-title">毎週月曜の運用</div>
-                <div class="workflow-time">約30分</div>
-                <div class="workflow-desc">遅延タスクを確認 → スケジュール調整 → 営業会議でガントチャートを画面共有</div>
+<!-- ===== Task Library View ===== -->
+<div class="view-panel" id="view-library">
+    <div class="library-view">
+        <div class="view-header">
+            <h2>Task Library - タスクライブラリ</h2>
+            <div class="view-header-actions">
+                <select class="filter-select" id="lib-filter-phase">
+                    <option value="all">全フェーズ</option>
+                    <option value="引合～提案">引合～提案</option>
+                    <option value="受注">受注</option>
+                    <option value="工事">工事</option>
+                </select>
+                <select class="filter-select" id="lib-filter-dept">
+                    <option value="all">全部門</option>
+                    <option value="営業">営業</option>
+                    <option value="SE">SE</option>
+                    <option value="マネージャー">マネージャー</option>
+                </select>
+                <span id="lib-count" style="font-size:12px;color:var(--text-sub);"></span>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- Roadmap -->
-<section class="section" style="background: var(--bg);">
-    <div class="container">
-        <div class="section-title fade-in">今後の拡張計画</div>
-        <div class="section-sub fade-in">段階的に機能を拡充し、業務効率を継続的に改善</div>
-
-        <div class="roadmap">
-            <div class="roadmap-card current fade-in">
-                <div class="roadmap-phase">Phase 1 - 現在</div>
-                <div class="roadmap-title">WBS・ガントチャートツール</div>
-                <div class="roadmap-desc">タスクライブラリ、WBS管理、ガントチャート自動生成の基盤構築</div>
-            </div>
-            <div class="roadmap-card fade-in">
-                <div class="roadmap-phase">Phase 2</div>
-                <div class="roadmap-title">Outlookアラート連携</div>
-                <div class="roadmap-desc">タスクの未登録検出、期限リマインダー自動送信による対応漏れ防止</div>
-            </div>
-            <div class="roadmap-card fade-in">
-                <div class="roadmap-phase">Phase 3</div>
-                <div class="roadmap-title">実績データ蓄積・分析</div>
-                <div class="roadmap-desc">タスク実測時間の蓄積、担当者別比較、見積精度の継続的向上</div>
-            </div>
+        <div class="wbs-card">
+            <div class="table-wrap" id="library-table"></div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- Footer -->
-<footer class="footer">
-    <strong>WBS・ガントチャートExcelツール</strong> デモ版 v1.0<br>
-    <span style="opacity: 0.7;">SS部 業務フロー管理 | 合同会社TOKZUM</span>
-</footer>
+<!-- ===== Add Task Modal ===== -->
+<div class="modal-overlay" id="modal-add">
+    <div class="modal">
+        <h3>タスク追加</h3>
+        <div class="modal-field">
+            <label>フェーズ</label>
+            <select id="add-phase">
+                <option>引合～提案</option>
+                <option>受注</option>
+                <option>工事</option>
+            </select>
+        </div>
+        <div class="modal-field">
+            <label>タスク名（タスクライブラリから選択）</label>
+            <select id="add-task-name"></select>
+        </div>
+        <div class="modal-field">
+            <label>担当者</label>
+            <input type="text" id="add-person" placeholder="例: 田中">
+        </div>
+        <div class="modal-field">
+            <label>開始日</label>
+            <input type="date" id="add-start" value="2026-03-19">
+        </div>
+        <div class="modal-field">
+            <label>終了日</label>
+            <input type="date" id="add-end" value="2026-03-23">
+        </div>
+        <div class="modal-field">
+            <label>優先度</label>
+            <select id="add-priority">
+                <option value="高">高</option>
+                <option value="中" selected>中</option>
+                <option value="低">低</option>
+            </select>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" id="btn-modal-close">キャンセル</button>
+            <button class="btn btn-primary" id="btn-modal-add">追加</button>
+        </div>
+    </div>
+</div>
 
 <script>
 // ===== DATA =====
-const TASKS = [
-    { no:1, phase:"引合～提案", process:"引合獲得", task:"引合情報獲得", person:"田中", start:"2026-03-02", end:"2026-03-02", status:"完了", progress:100, deliverable:"引合情報一覧", note:"" },
-    { no:2, phase:"引合～提案", process:"引合獲得", task:"要件ヒアリング", person:"田中", start:"2026-03-03", end:"2026-03-05", status:"完了", progress:100, deliverable:"ヒアリングシート", note:"" },
-    { no:3, phase:"引合～提案", process:"引合獲得", task:"引合仕様内容の検討", person:"佐藤", start:"2026-03-06", end:"2026-03-12", status:"進行中", progress:60, deliverable:"検討資料", note:"追加確認あり" },
-    { no:4, phase:"引合～提案", process:"引合獲得", task:"NDA締結", person:"田中", start:"2026-03-06", end:"2026-03-12", status:"進行中", progress:30, deliverable:"NDA契約書", note:"法務確認中" },
-    { no:5, phase:"引合～提案", process:"工番取得", task:"工番設定要求書発行", person:"田中", start:"2026-03-13", end:"2026-03-13", status:"未着手", progress:0, deliverable:"工番設定要求書", note:"" },
-    { no:6, phase:"引合～提案", process:"工番取得", task:"SEに情報共有", person:"田中", start:"2026-03-13", end:"2026-03-13", status:"未着手", progress:0, deliverable:"案件台帳", note:"" },
-    { no:7, phase:"引合～提案", process:"提案", task:"質問書の作成", person:"佐藤", start:"2026-03-16", end:"2026-03-18", status:"未着手", progress:0, deliverable:"質問書", note:"" },
-    { no:8, phase:"引合～提案", process:"提案", task:"現場ヒアリング", person:"佐藤", start:"2026-03-19", end:"2026-03-23", status:"未着手", progress:0, deliverable:"現場調査報告書", note:"" },
-    { no:9, phase:"引合～提案", process:"システム検討", task:"物量データ受領", person:"鈴木", start:"2026-03-16", end:"2026-03-17", status:"未着手", progress:0, deliverable:"物量データ", note:"" },
-    { no:10, phase:"引合～提案", process:"システム検討", task:"物量チャート作成", person:"鈴木", start:"2026-03-18", end:"2026-03-20", status:"未着手", progress:0, deliverable:"物量チャート", note:"" },
-    { no:11, phase:"引合～提案", process:"見積", task:"見積書作成", person:"田中", start:"2026-03-30", end:"2026-04-01", status:"未着手", progress:0, deliverable:"見積書", note:"" },
-    { no:12, phase:"引合～提案", process:"提案", task:"提案書作成", person:"田中", start:"2026-04-02", end:"2026-04-08", status:"未着手", progress:0, deliverable:"提案書", note:"" },
+const TODAY = new Date(2026, 2, 19);
+
+let TASKS = [
+    { no:1, phase:"引合～提案", process:"引合獲得", task:"引合情報獲得", person:"田中", start:"2026-03-02", end:"2026-03-02", status:"完了", progress:100, deliverable:"引合情報一覧", priority:"高", note:"" },
+    { no:2, phase:"引合～提案", process:"引合獲得", task:"要件ヒアリング", person:"田中", start:"2026-03-03", end:"2026-03-05", status:"完了", progress:100, deliverable:"ヒアリングシート", priority:"高", note:"" },
+    { no:3, phase:"引合～提案", process:"引合獲得", task:"引合仕様内容の検討", person:"佐藤", start:"2026-03-06", end:"2026-03-14", status:"完了", progress:100, deliverable:"検討資料", priority:"高", note:"" },
+    { no:4, phase:"引合～提案", process:"引合獲得", task:"NDA締結", person:"田中", start:"2026-03-06", end:"2026-03-14", status:"完了", progress:100, deliverable:"NDA契約書", priority:"高", note:"法務確認済" },
+    { no:5, phase:"引合～提案", process:"工番取得", task:"工番設定要求書発行", person:"田中", start:"2026-03-16", end:"2026-03-16", status:"完了", progress:100, deliverable:"工番設定要求書", priority:"中", note:"" },
+    { no:6, phase:"引合～提案", process:"工番取得", task:"SEに情報共有", person:"田中", start:"2026-03-16", end:"2026-03-16", status:"完了", progress:100, deliverable:"案件台帳", priority:"中", note:"" },
+    { no:7, phase:"引合～提案", process:"提案", task:"質問書の作成", person:"佐藤", start:"2026-03-17", end:"2026-03-19", status:"進行中", progress:70, deliverable:"質問書", priority:"高", note:"本日中に完了予定" },
+    { no:8, phase:"引合～提案", process:"提案", task:"現場ヒアリング", person:"佐藤", start:"2026-03-19", end:"2026-03-25", status:"進行中", progress:10, deliverable:"現場調査報告書", priority:"高", note:"本日訪問予定" },
+    { no:9, phase:"引合～提案", process:"システム検討", task:"物量データ受領", person:"鈴木", start:"2026-03-17", end:"2026-03-18", status:"遅延", progress:50, deliverable:"物量データ", priority:"高", note:"顧客からの回答待ち" },
+    { no:10, phase:"引合～提案", process:"システム検討", task:"物量チャート作成", person:"鈴木", start:"2026-03-19", end:"2026-03-23", status:"未着手", progress:0, deliverable:"物量チャート", priority:"中", note:"No.9完了後開始" },
+    { no:11, phase:"引合～提案", process:"方向性決定会議", task:"Gr.内情報共有・報告", person:"田中", start:"2026-03-19", end:"2026-03-19", status:"未着手", progress:0, deliverable:"案件台帳更新", priority:"中", note:"" },
+    { no:12, phase:"引合～提案", process:"モジュール設計", task:"レイアウトモジュール化", person:"鈴木", start:"2026-03-24", end:"2026-04-04", status:"未着手", progress:0, deliverable:"モジュール設計図", priority:"中", note:"" },
+    { no:13, phase:"引合～提案", process:"見積", task:"見積書作成", person:"田中", start:"2026-04-07", end:"2026-04-09", status:"未着手", progress:0, deliverable:"見積書", priority:"高", note:"" },
+    { no:14, phase:"引合～提案", process:"提案", task:"提案書作成", person:"田中", start:"2026-04-10", end:"2026-04-16", status:"未着手", progress:0, deliverable:"提案書", priority:"高", note:"" },
+    { no:15, phase:"引合～提案", process:"提案", task:"プレプレゼン（社内）開催", person:"田中", start:"2026-04-17", end:"2026-04-17", status:"未着手", progress:0, deliverable:"プレゼン資料", priority:"中", note:"" },
 ];
 
 const LIBRARY = [
@@ -723,24 +1168,24 @@ const LIBRARY = [
     ["引合～提案","引合獲得","引合仕様内容の検討","検討資料",5,"営業/SE"],
     ["引合～提案","引合獲得","NDA締結","NDA契約書",5,"営業"],
     ["引合～提案","引合獲得","Gr.内情報共有・報告","案件台帳更新",1,"営業"],
-    ["引合～提案","工番取得","工番設定要求書発行（RL工番）","工番設定要求書",1,"営業"],
-    ["引合～提案","工番取得","SEに情報共有（Teams/案件台帳）","案件台帳",1,"営業"],
+    ["引合～提案","工番取得","工番設定要求書発行","工番設定要求書",1,"営業"],
+    ["引合～提案","工番取得","SEに情報共有","案件台帳",1,"営業"],
     ["引合～提案","方向性決定会議","SEアサイン","アサイン通知",1,"マネージャー"],
     ["引合～提案","提案","質問書の作成","質問書",3,"SE"],
     ["引合～提案","提案","現場ヒアリング","現場調査報告書",3,"SE"],
-    ["引合～提案","提案","全体工程表作成（SI）","全体工程表",5,"SE"],
-    ["引合～提案","システム検討（SI）","物量データ受領","物量データ",2,"SE"],
-    ["引合～提案","システム検討（SI）","物量チャート作成","物量チャート",3,"SE"],
-    ["引合～提案","システム検討（SI）","頻度分析","分析レポート",3,"SE"],
-    ["引合～提案","システム検討（SI）","システムフローチャート作成","フローチャート",5,"SE"],
-    ["引合～提案","システム検討（SI）","システム・設備の選定・比較","比較表",5,"SE"],
-    ["引合～提案","モジュール設計/検討","レイアウトモジュール化","モジュール設計図",10,"SE"],
-    ["引合～提案","モジュール設計/検討","概算人員試算","人員計画書",3,"SE"],
-    ["引合～提案","モジュール設計/検討","PPP開催","PPP議事録",1,"SE"],
+    ["引合～提案","提案","全体工程表作成","全体工程表",5,"SE"],
+    ["引合～提案","システム検討","物量データ受領","物量データ",2,"SE"],
+    ["引合～提案","システム検討","物量チャート作成","物量チャート",3,"SE"],
+    ["引合～提案","システム検討","頻度分析","分析レポート",3,"SE"],
+    ["引合～提案","システム検討","システムフローチャート作成","フローチャート",5,"SE"],
+    ["引合～提案","システム検討","システム・設備の選定・比較","比較表",5,"SE"],
+    ["引合～提案","モジュール設計","レイアウトモジュール化","モジュール設計図",10,"SE"],
+    ["引合～提案","モジュール設計","概算人員試算","人員計画書",3,"SE"],
+    ["引合～提案","モジュール設計","PPP開催","PPP議事録",1,"SE"],
     ["引合～提案","原価積算依頼","見積資料作成依頼書発行","依頼書",2,"営業"],
     ["引合～提案","原価積算依頼","見積方針会議開催","会議議事録",1,"営業/SE"],
     ["引合～提案","見積","原価情報収集","原価データ",5,"営業"],
-    ["引合～提案","見積","原価精査（精査会議含）","精査結果",3,"営業"],
+    ["引合～提案","見積","原価精査","精査結果",3,"営業"],
     ["引合～提案","見積","見積金額算定","見積計算書",3,"営業"],
     ["引合～提案","見積","見積書作成","見積書",2,"営業"],
     ["引合～提案","見積","上長承認","承認済見積書",1,"マネージャー"],
@@ -748,14 +1193,14 @@ const LIBRARY = [
     ["引合～提案","提案","プレプレゼン（社内）開催","プレゼン資料",1,"営業/SE"],
     ["引合～提案","提案","プレゼン（客先）","プレゼン議事録",1,"営業/SE"],
     ["受注","内示","内示受領","内示書",1,"営業"],
-    ["受注","内示","ひな形作成（CBC）","契約ひな形",3,"営業"],
+    ["受注","内示","ひな形作成","契約ひな形",3,"営業"],
     ["受注","契約締結","注文条件確認","条件確認書",2,"営業"],
     ["受注","契約締結","注文書／契約書発行","契約書",3,"営業"],
     ["受注","契約締結","注文書／契約書受領","受領記録",1,"営業"],
     ["受注","契約締結","契約内容確認","確認記録",2,"営業"],
     ["受注","契約締結","リスク有無確認","リスク評価書",2,"営業"],
     ["受注","受注","受注工番LE化","LE工番",1,"営業"],
-    ["受注","受注","実行予算算定（500万以下）","実行予算書",3,"営業"],
+    ["受注","受注","実行予算算定","実行予算書",3,"営業"],
     ["受注","受注","受注決定会議","会議議事録",1,"マネージャー"],
     ["受注","受注","受注確定登録","確定登録",1,"営業"],
     ["受注","受注","製造指示書の発行","製造指示書",2,"SE"],
@@ -775,21 +1220,14 @@ const LIBRARY = [
     ["工事","クロージング","案件クローズ","クローズ報告",1,"営業"],
 ];
 
-const TODAY = new Date(2026, 2, 14); // デモ用の今日
-
-// ===== HELPER =====
-function parseDate(s) {
-    const [y,m,d] = s.split('-').map(Number);
-    return new Date(y, m-1, d);
-}
-function fmtDate(s) {
-    const d = parseDate(s);
-    return `${d.getMonth()+1}/${d.getDate()}`;
-}
+// ===== HELPERS =====
+function parseDate(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function fmtDate(s) { const d = parseDate(s); return `${d.getMonth()+1}/${d.getDate()}`; }
 function statusClass(s) {
     if (s === '完了') return 'status-done';
     if (s === '進行中') return 'status-active';
     if (s === '遅延') return 'status-late';
+    if (s === '保留') return 'status-hold';
     return 'status-todo';
 }
 function progressClass(p) {
@@ -802,49 +1240,257 @@ function phaseClass(p) {
     if (p.includes('受注')) return 'phase-order';
     return 'phase-construction';
 }
+function priorityClass(p) {
+    if (p === '高') return 'priority-high';
+    if (p === '中') return 'priority-mid';
+    return 'priority-low';
+}
 
-// ===== RENDER GANTT =====
-function renderGantt(filter) {
+// ===== NAVIGATION =====
+function switchView(view) {
+    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    document.querySelector(`#main-nav button[data-view="${view}"]`).classList.add('active');
+}
+document.querySelectorAll('#main-nav button').forEach(btn => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+document.querySelectorAll('.step-box[data-view-link]').forEach(box => {
+    box.addEventListener('click', () => switchView(box.dataset.viewLink));
+});
+
+// ===== DATE =====
+const weekdays = ['日','月','火','水','木','金','土'];
+document.getElementById('topbar-date').textContent = `${TODAY.getFullYear()}/${(TODAY.getMonth()+1).toString().padStart(2,'0')}/${TODAY.getDate().toString().padStart(2,'0')} (${weekdays[TODAY.getDay()]})`;
+
+// ===== KPI =====
+function renderKPI() {
+    const total = TASKS.length;
+    const done = TASKS.filter(t => t.status === '完了').length;
+    const active = TASKS.filter(t => t.status === '進行中').length;
+    const late = TASKS.filter(t => t.status === '遅延').length;
+    const overallProgress = total > 0 ? Math.round(TASKS.reduce((s,t) => s + t.progress, 0) / total) : 0;
+
+    document.getElementById('kpi-area').innerHTML = `
+        <div class="kpi-card kpi-total"><div class="kpi-label">全タスク</div><div class="kpi-value">${total}</div><div class="kpi-sub">進捗率 ${overallProgress}%</div></div>
+        <div class="kpi-card kpi-done"><div class="kpi-label">完了</div><div class="kpi-value">${done}</div><div class="kpi-sub">${total > 0 ? Math.round(done/total*100) : 0}% of total</div></div>
+        <div class="kpi-card kpi-active"><div class="kpi-label">進行中</div><div class="kpi-value">${active}</div><div class="kpi-sub">アクティブ</div></div>
+        <div class="kpi-card kpi-late"><div class="kpi-label">遅延</div><div class="kpi-value">${late}</div><div class="kpi-sub">${late > 0 ? '要対応' : '問題なし'}</div></div>
+    `;
+}
+
+// ===== Phase Progress =====
+function renderPhaseProgress() {
+    const phases = ['引合～提案', '受注', '工事'];
+    let html = '';
+    phases.forEach(ph => {
+        const tasks = TASKS.filter(t => t.phase === ph);
+        const avg = tasks.length > 0 ? Math.round(tasks.reduce((s,t) => s + t.progress, 0) / tasks.length) : 0;
+        const color = avg >= 70 ? 'var(--success)' : avg >= 30 ? 'var(--orange)' : 'var(--error)';
+        html += `<li class="mini-progress-item">
+            <span class="phase-tag ${phaseClass(ph)}">${ph}</span>
+            <span class="mini-progress-label">${tasks.length} タスク</span>
+            <div class="mini-bar"><div class="mini-bar-fill" style="width:${avg}%;background:${color}"></div></div>
+            <span class="mini-pct" style="color:${color}">${avg}%</span>
+        </li>`;
+    });
+    document.getElementById('phase-progress').innerHTML = html;
+}
+
+// ===== Alerts =====
+function renderAlerts() {
+    const alerts = [];
+    TASKS.forEach(t => {
+        if (t.status === '遅延') {
+            alerts.push({ type: 'red', text: `<strong>${t.task}</strong> が遅延中`, detail: `担当: ${t.person} / 進捗: ${t.progress}% / ${t.note}` });
+        }
+        const end = parseDate(t.end);
+        const diff = Math.floor((end - TODAY) / 86400000);
+        if (diff >= 0 && diff <= 2 && t.status !== '完了') {
+            alerts.push({ type: 'orange', text: `<strong>${t.task}</strong> の期限が${diff === 0 ? '今日' : diff + '日後'}`, detail: `担当: ${t.person}` });
+        }
+    });
+    if (alerts.length === 0) {
+        alerts.push({ type: 'blue', text: '現在アラートはありません', detail: '' });
+    }
+    document.getElementById('alert-list').innerHTML = alerts.map(a =>
+        `<li class="alert-item"><div class="alert-dot ${a.type}"></div><div><div>${a.text}</div><div class="alert-detail">${a.detail}</div></div></li>`
+    ).join('');
+}
+
+// ===== Today Tasks =====
+function renderTodayTasks() {
+    const todayTasks = TASKS.filter(t => {
+        const s = parseDate(t.start), e = parseDate(t.end);
+        return TODAY >= s && TODAY <= e && t.status !== '完了';
+    });
+    if (todayTasks.length === 0) {
+        document.getElementById('today-tasks').innerHTML = '<p style="font-size:13px;color:var(--text-sub);padding:12px 0;">今日予定のタスクはありません</p>';
+        return;
+    }
+    document.getElementById('today-tasks').innerHTML = todayTasks.map(t =>
+        `<div class="today-task">
+            <div class="today-check" data-no="${t.no}"></div>
+            <span class="today-task-name">${t.task}</span>
+            <span class="today-task-person">${t.person}</span>
+            <span class="status ${statusClass(t.status)}">${t.status}</span>
+        </div>`
+    ).join('');
+
+    document.querySelectorAll('.today-check').forEach(chk => {
+        chk.addEventListener('click', () => {
+            const no = parseInt(chk.dataset.no);
+            const task = TASKS.find(t => t.no === no);
+            if (task) {
+                task.status = '完了';
+                task.progress = 100;
+                chk.classList.add('checked');
+                chk.innerHTML = '&#10003;';
+                chk.nextElementSibling.classList.add('done');
+                renderKPI();
+                renderPhaseProgress();
+                renderAlerts();
+            }
+        });
+    });
+}
+
+// ===== WBS =====
+function renderWBS() {
+    const fp = document.getElementById('wbs-filter-phase').value;
+    const fs = document.getElementById('wbs-filter-status').value;
+    const fpe = document.getElementById('wbs-filter-person').value;
+    let tasks = TASKS;
+    if (fp !== 'all') tasks = tasks.filter(t => t.phase === fp);
+    if (fs !== 'all') tasks = tasks.filter(t => t.status === fs);
+    if (fpe !== 'all') tasks = tasks.filter(t => t.person === fpe);
+
+    let html = '<table><thead><tr>';
+    ['No','フェーズ','工程','タスク名','担当者','開始日','終了日','日数','ステータス','進捗率','優先度','成果物','備考'].forEach(h => html += `<th>${h}</th>`);
+    html += '</tr></thead><tbody>';
+
+    tasks.forEach(t => {
+        const s = parseDate(t.start), e = parseDate(t.end);
+        const days = Math.floor((e - s) / 86400000) + 1;
+        const rowCls = t.status === '完了' ? ' class="row-done"' : '';
+        html += `<tr${rowCls}>`;
+        html += `<td style="text-align:center;font-family:Inter,sans-serif">${t.no}</td>`;
+        html += `<td><span class="phase-tag ${phaseClass(t.phase)}">${t.phase}</span></td>`;
+        html += `<td>${t.process}</td>`;
+        html += `<td style="font-weight:500">${t.task}</td>`;
+        html += `<td style="text-align:center">${t.person}</td>`;
+        html += `<td style="font-family:Inter,sans-serif">${fmtDate(t.start)}</td>`;
+        html += `<td style="font-family:Inter,sans-serif">${fmtDate(t.end)}</td>`;
+        html += `<td style="text-align:center;font-family:Inter,sans-serif">${days}</td>`;
+        html += `<td class="editable" data-no="${t.no}" data-field="status"><span class="status ${statusClass(t.status)}">${t.status}</span></td>`;
+        html += `<td class="editable" data-no="${t.no}" data-field="progress">
+            <div class="progress-bar"><div class="progress-fill ${progressClass(t.progress)}" style="width:${t.progress}%"></div></div>
+            <span class="progress-text">${t.progress}%</span>
+        </td>`;
+        html += `<td><span class="priority ${priorityClass(t.priority)}">${t.priority}</span></td>`;
+        html += `<td>${t.deliverable}</td>`;
+        html += `<td style="color:var(--text-sub);font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis">${t.note}</td>`;
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('wbs-table').innerHTML = html;
+
+    // Inline edit
+    document.querySelectorAll('.editable').forEach(cell => {
+        cell.addEventListener('click', () => {
+            const no = parseInt(cell.dataset.no);
+            const field = cell.dataset.field;
+            const task = TASKS.find(t => t.no === no);
+            if (!task) return;
+
+            if (field === 'status') {
+                const sel = document.createElement('select');
+                ['未着手','進行中','完了','遅延','保留'].forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s; opt.textContent = s;
+                    if (s === task.status) opt.selected = true;
+                    sel.appendChild(opt);
+                });
+                cell.innerHTML = '';
+                cell.appendChild(sel);
+                sel.focus();
+                sel.addEventListener('change', () => {
+                    task.status = sel.value;
+                    if (task.status === '完了') task.progress = 100;
+                    renderAll();
+                });
+                sel.addEventListener('blur', () => renderWBS());
+            } else if (field === 'progress') {
+                const inp = document.createElement('input');
+                inp.type = 'number'; inp.min = 0; inp.max = 100; inp.value = task.progress;
+                inp.style.width = '60px';
+                cell.innerHTML = '';
+                cell.appendChild(inp);
+                inp.focus();
+                inp.addEventListener('change', () => {
+                    task.progress = Math.max(0, Math.min(100, parseInt(inp.value) || 0));
+                    if (task.progress === 100) task.status = '完了';
+                    renderAll();
+                });
+                inp.addEventListener('blur', () => renderWBS());
+            }
+        });
+    });
+}
+
+// Person filter
+function updatePersonFilter() {
+    const persons = [...new Set(TASKS.map(t => t.person))];
+    const sel = document.getElementById('wbs-filter-person');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="all">全担当者</option>';
+    persons.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p; opt.textContent = p;
+        if (p === cur) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+// ===== GANTT =====
+function renderGantt() {
+    const filter = document.getElementById('gantt-filter').value;
     const ganttStart = new Date(2026, 2, 1);
-    const ganttEnd = new Date(2026, 3, 15);
+    const ganttEnd = new Date(2026, 3, 20);
     const totalDays = Math.floor((ganttEnd - ganttStart) / 86400000) + 1;
 
     let tasks = TASKS;
-    if (filter && filter !== 'all') {
+    if (filter !== 'all') {
         const map = { done:'完了', active:'進行中', todo:'未着手' };
         tasks = tasks.filter(t => t.status === map[filter]);
     }
 
     let html = '<table class="gantt-table"><thead>';
-
     // Month row
     html += '<tr>';
-    html += '<th class="task-col" rowspan="2" style="min-width:30px">No</th>';
-    html += '<th class="task-col" rowspan="2" style="min-width:140px">タスク名</th>';
-    html += '<th class="task-col" rowspan="2" style="min-width:50px">担当</th>';
+    html += '<th class="task-col" rowspan="2" style="min-width:28px">No</th>';
+    html += '<th class="task-col" rowspan="2" style="min-width:130px">タスク名</th>';
+    html += '<th class="task-col" rowspan="2" style="min-width:40px">担当</th>';
     html += '<th class="task-col" rowspan="2" style="min-width:50px">状態</th>';
 
-    let months = [];
-    let curMonth = -1;
+    let months = [], curMonth = -1;
     for (let i = 0; i < totalDays; i++) {
         const d = new Date(ganttStart.getTime() + i * 86400000);
         if (d.getMonth() !== curMonth) {
             if (months.length > 0) months[months.length-1].span = i - months[months.length-1].startIdx;
-            months.push({ label: `${d.getFullYear()}年${d.getMonth()+1}月`, startIdx: i });
+            months.push({ label: `${d.getMonth()+1}月`, startIdx: i });
             curMonth = d.getMonth();
         }
     }
     months[months.length-1].span = totalDays - months[months.length-1].startIdx;
-    months.forEach(m => { html += `<th class="month-header" colspan="${m.span}">${m.label}</th>`; });
-    html += '</tr>';
+    months.forEach(m => html += `<th class="month-header" colspan="${m.span}">${m.label}</th>`);
+    html += '</tr><tr>';
 
-    // Day row
-    html += '<tr>';
-    const weekdays = ['日','月','火','水','木','金','土'];
     for (let i = 0; i < totalDays; i++) {
         const d = new Date(ganttStart.getTime() + i * 86400000);
         const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-        const isToday = d.getTime() === TODAY.getTime();
+        const isToday = d.toDateString() === TODAY.toDateString();
         let cls = isToday ? 'today-header' : (isWeekend ? 'weekend' : '');
         html += `<th class="${cls}" title="${d.getMonth()+1}/${d.getDate()}(${weekdays[d.getDay()]})">${d.getDate()}</th>`;
     }
@@ -852,20 +1498,19 @@ function renderGantt(filter) {
 
     tasks.forEach(t => {
         html += '<tr>';
-        html += `<td class="task-cell" style="text-align:center">${t.no}</td>`;
-        html += `<td class="task-cell task-name-col">${t.task}</td>`;
-        html += `<td class="task-cell" style="text-align:center">${t.person}</td>`;
-        html += `<td class="task-cell"><span class="status ${statusClass(t.status)}">${t.status}</span></td>`;
+        html += `<td class="task-cell" style="text-align:center;font-family:Inter,sans-serif;font-size:11px">${t.no}</td>`;
+        html += `<td class="task-cell task-name-col" style="font-size:12px">${t.task}</td>`;
+        html += `<td class="task-cell" style="text-align:center;font-size:12px">${t.person}</td>`;
+        html += `<td class="task-cell"><span class="status ${statusClass(t.status)}" style="font-size:10px">${t.status}</span></td>`;
 
-        const tStart = parseDate(t.start);
-        const tEnd = parseDate(t.end);
+        const tStart = parseDate(t.start), tEnd = parseDate(t.end);
         const daysDuration = Math.floor((tEnd - tStart) / 86400000) + 1;
         const progressDays = Math.floor(daysDuration * t.progress / 100);
 
         for (let i = 0; i < totalDays; i++) {
             const d = new Date(ganttStart.getTime() + i * 86400000);
             const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-            const isToday = d.getTime() === TODAY.getTime();
+            const isToday = d.toDateString() === TODAY.toDateString();
             const inRange = d >= tStart && d <= tEnd;
             const daysFromStart = Math.floor((d - tStart) / 86400000);
 
@@ -882,65 +1527,102 @@ function renderGantt(filter) {
         }
         html += '</tr>';
     });
-
     html += '</tbody></table>';
     document.getElementById('gantt-chart').innerHTML = html;
 }
 
-// ===== RENDER WBS =====
-function renderWBS(filterStatus, filterPerson) {
-    let tasks = TASKS;
-    if (filterStatus && filterStatus !== 'all') tasks = tasks.filter(t => t.status === filterStatus);
-    if (filterPerson && filterPerson !== 'all') tasks = tasks.filter(t => t.person === filterPerson);
+// ===== CALENDAR =====
+function renderCalendar() {
+    const days = ['月 3/16','火 3/17','水 3/18','木 3/19','金 3/20'];
+    const todayIdx = 3; // Thursday
+    const hours = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 
-    let html = '<table><thead><tr>';
-    ['No','案件名','フェーズ','工程','タスク名','担当者','開始日','終了日','所要日数','ステータス','進捗率','成果物','備考'].forEach(h => {
-        html += `<th>${h}</th>`;
-    });
-    html += '</tr></thead><tbody>';
-
-    tasks.forEach(t => {
-        const start = parseDate(t.start);
-        const end = parseDate(t.end);
-        const days = Math.floor((end - start) / 86400000) + 1;
-        html += '<tr>';
-        html += `<td style="text-align:center">${t.no}</td>`;
-        html += `<td>〇〇物流センター新設案件</td>`;
-        html += `<td><span class="phase-tag ${phaseClass(t.phase)}">${t.phase}</span></td>`;
-        html += `<td>${t.process}</td>`;
-        html += `<td style="font-weight:500">${t.task}</td>`;
-        html += `<td style="text-align:center">${t.person}</td>`;
-        html += `<td>${fmtDate(t.start)}</td>`;
-        html += `<td>${fmtDate(t.end)}</td>`;
-        html += `<td style="text-align:center;font-family:Inter,sans-serif">${days}</td>`;
-        html += `<td><span class="status ${statusClass(t.status)}">${t.status}</span></td>`;
-        html += `<td>
-            <div class="progress-bar"><div class="progress-fill ${progressClass(t.progress)}" style="width:${t.progress}%"></div></div>
-            <span class="progress-text">${t.progress}%</span>
-        </td>`;
-        html += `<td>${t.deliverable}</td>`;
-        html += `<td style="color:var(--text-sub);font-size:12px">${t.note}</td>`;
-        html += '</tr>';
+    let html = '<div class="cal-header" style="background:#2d3748"></div>';
+    days.forEach((d, i) => {
+        html += `<div class="cal-header${i === todayIdx ? ' today-col' : ''}">${d}</div>`;
     });
 
-    html += '</tbody></table>';
-    document.getElementById('wbs-table').innerHTML = html;
+    // Time column
+    html += '<div class="cal-time-col">';
+    hours.forEach(h => html += `<div class="cal-time">${h}</div>`);
+    html += '</div>';
+
+    // Events data
+    const events = [
+        // Mon
+        [
+            { start: 1, dur: 1, type: 'meeting', title: '週次MTG', detail: '営業チーム' },
+            { start: 3, dur: 2, type: 'task-block', title: '[物流] 質問書作成', detail: '集中作業' },
+        ],
+        // Tue
+        [
+            { start: 0, dur: 1, type: 'task-block', title: '[物流] 質問書作成', detail: '集中作業' },
+            { start: 2, dur: 1, type: 'meeting', title: '案件レビュー会', detail: 'Gr.内' },
+            { start: 4, dur: 2, type: 'task-block', title: '[物流] 物量データ確認', detail: '鈴木さんと連携' },
+        ],
+        // Wed
+        [
+            { start: 1, dur: 2, type: 'focus-block', title: '[物流] 現場調査準備', detail: '資料整理' },
+            { start: 4, dur: 1, type: 'meeting', title: '部門会議', detail: 'SS部全体' },
+            { start: 6, dur: 2, type: 'task-block', title: '[物流] NDA最終確認', detail: '法務と連携' },
+        ],
+        // Thu (today)
+        [
+            { start: 0, dur: 1, type: 'meeting', title: 'Morning Check', detail: '日次KPT 5min' },
+            { start: 1, dur: 3, type: 'focus-block', title: '[物流] 現場ヒアリング', detail: '客先訪問' },
+            { start: 5, dur: 2, type: 'task-block', title: '[物流] Gr.内情報共有', detail: '案件台帳更新' },
+            { start: 8, dur: 1, type: 'meeting', title: 'Evening Log', detail: 'ステータス更新' },
+        ],
+        // Fri
+        [
+            { start: 0, dur: 1, type: 'meeting', title: 'Morning Check', detail: '日次KPT 5min' },
+            { start: 1, dur: 2, type: 'task-block', title: '[物流] 現場調査報告書', detail: '集中作業' },
+            { start: 4, dur: 2, type: 'focus-block', title: '[物流] 物量チャート着手', detail: '鈴木' },
+            { start: 7, dur: 1, type: 'meeting', title: '週次振り返り', detail: '' },
+        ],
+    ];
+
+    days.forEach((d, di) => {
+        html += `<div class="cal-day-col${di === todayIdx ? ' today-col-bg' : ''}">`;
+        hours.forEach((h, hi) => {
+            html += `<div class="cal-slot" data-day="${di}" data-hour="${hi}">`;
+            const ev = events[di].find(e => e.start === hi);
+            if (ev) {
+                const h = ev.dur * 60;
+                html += `<div class="cal-event ${ev.type}" style="top:2px;height:${h - 4}px">
+                    <div class="cal-event-title">${ev.title}</div>
+                    <div class="cal-event-detail">${ev.detail}</div>
+                </div>`;
+            }
+            html += '</div>';
+        });
+        // Now line for today
+        if (di === todayIdx) {
+            html += `<div class="cal-now-line" style="top:${2.5 * 60}px"><div class="cal-now-dot"></div></div>`;
+        }
+        html += '</div>';
+    });
+
+    document.getElementById('calendar-grid').innerHTML = html;
 }
 
-// ===== RENDER LIBRARY =====
-function renderLibrary(filterPhase) {
+// ===== LIBRARY =====
+function renderLibrary() {
+    const fp = document.getElementById('lib-filter-phase').value;
+    const fd = document.getElementById('lib-filter-dept').value;
     let data = LIBRARY;
-    if (filterPhase && filterPhase !== 'all') data = data.filter(r => r[0] === filterPhase);
+    if (fp !== 'all') data = data.filter(r => r[0] === fp);
+    if (fd !== 'all') data = data.filter(r => r[5].includes(fd));
+
+    document.getElementById('lib-count').textContent = `${data.length} / ${LIBRARY.length} タスク`;
 
     let html = '<table><thead><tr>';
-    ['No','フェーズ','工程','タスク名','標準成果物','標準所要日数','担当部門'].forEach(h => {
-        html += `<th>${h}</th>`;
-    });
+    ['No','フェーズ','工程','タスク名','標準成果物','標準日数','担当部門'].forEach(h => html += `<th>${h}</th>`);
     html += '</tr></thead><tbody>';
 
     data.forEach((r, i) => {
         html += '<tr>';
-        html += `<td style="text-align:center">${i+1}</td>`;
+        html += `<td style="text-align:center;font-family:Inter,sans-serif">${i+1}</td>`;
         html += `<td><span class="phase-tag ${phaseClass(r[0])}">${r[0]}</span></td>`;
         html += `<td>${r[1]}</td>`;
         html += `<td style="font-weight:500">${r[2]}</td>`;
@@ -949,41 +1631,89 @@ function renderLibrary(filterPhase) {
         html += `<td style="text-align:center">${r[5]}</td>`;
         html += '</tr>';
     });
-
     html += '</tbody></table>';
     document.getElementById('library-table').innerHTML = html;
 }
 
-// ===== TABS =====
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+// ===== MODAL =====
+function populateTaskNames() {
+    const phase = document.getElementById('add-phase').value;
+    const sel = document.getElementById('add-task-name');
+    sel.innerHTML = '';
+    LIBRARY.filter(r => r[0] === phase).forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r[2]; opt.textContent = `${r[2]} (${r[1]})`;
+        sel.appendChild(opt);
     });
+}
+
+document.getElementById('btn-add-task').addEventListener('click', () => {
+    populateTaskNames();
+    document.getElementById('modal-add').classList.add('show');
+});
+document.getElementById('add-phase').addEventListener('change', populateTaskNames);
+document.getElementById('btn-modal-close').addEventListener('click', () => {
+    document.getElementById('modal-add').classList.remove('show');
+});
+document.getElementById('modal-add').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-add')) {
+        document.getElementById('modal-add').classList.remove('show');
+    }
 });
 
-// ===== FILTERS =====
-document.getElementById('gantt-filter').addEventListener('change', e => renderGantt(e.target.value));
-document.getElementById('wbs-filter-status').addEventListener('change', () => {
-    renderWBS(document.getElementById('wbs-filter-status').value, document.getElementById('wbs-filter-person').value);
-});
-document.getElementById('wbs-filter-person').addEventListener('change', () => {
-    renderWBS(document.getElementById('wbs-filter-status').value, document.getElementById('wbs-filter-person').value);
-});
-document.getElementById('lib-filter-phase').addEventListener('change', e => renderLibrary(e.target.value));
+document.getElementById('btn-modal-add').addEventListener('click', () => {
+    const phase = document.getElementById('add-phase').value;
+    const taskName = document.getElementById('add-task-name').value;
+    const person = document.getElementById('add-person').value || '未定';
+    const start = document.getElementById('add-start').value;
+    const end = document.getElementById('add-end').value;
+    const priority = document.getElementById('add-priority').value;
 
-// ===== SCROLL ANIMATION =====
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    const libItem = LIBRARY.find(r => r[2] === taskName);
+    const maxNo = Math.max(...TASKS.map(t => t.no));
 
-// ===== INIT =====
-renderGantt('all');
-renderWBS('all', 'all');
-renderLibrary('all');
+    TASKS.push({
+        no: maxNo + 1,
+        phase: phase,
+        process: libItem ? libItem[1] : '',
+        task: taskName,
+        person: person,
+        start: start,
+        end: end,
+        status: '未着手',
+        progress: 0,
+        deliverable: libItem ? libItem[3] : '',
+        priority: priority,
+        note: ''
+    });
+
+    document.getElementById('modal-add').classList.remove('show');
+    renderAll();
+});
+
+// ===== FILTER EVENTS =====
+['wbs-filter-phase','wbs-filter-status','wbs-filter-person'].forEach(id => {
+    document.getElementById(id).addEventListener('change', renderWBS);
+});
+document.getElementById('gantt-filter').addEventListener('change', renderGantt);
+['lib-filter-phase','lib-filter-dept'].forEach(id => {
+    document.getElementById(id).addEventListener('change', renderLibrary);
+});
+
+// ===== RENDER ALL =====
+function renderAll() {
+    renderKPI();
+    renderPhaseProgress();
+    renderAlerts();
+    renderTodayTasks();
+    updatePersonFilter();
+    renderWBS();
+    renderGantt();
+    renderCalendar();
+    renderLibrary();
+}
+
+renderAll();
 </script>
 </body>
 </html>
