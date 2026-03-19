@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WBS・ガントチャートツール デモ | TOKZUM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-sub: #f5f7fa;
+            --text: #1a1a2e;
+            --text-sub: #4a5568;
+            --accent: #1e3a5f;
+            --accent-light: #2c5282;
+            --success: #276749;
+            --warning: #975a16;
+            --error: #c53030;
+            --border: #e2e8f0;
+            --shadow: 0 4px 16px rgba(0,0,0,0.06);
+            --radius: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            color: var(--text);
+            background: var(--bg-sub);
+            line-height: 1.6;
+        }
+
+        /* ========== Hero ========== */
+        .hero {
+            background: linear-gradient(135deg, var(--accent) 0%, #2c5282 100%);
+            color: #fff;
+            padding: 80px 40px 60px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 4px 16px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+        .hero h1 {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .hero p {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 30px;
+        }
+        .hero-stat .num {
+            font-family: 'Inter', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .hero-stat .label {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        /* ========== Container ========== */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ========== Section ========== */
+        .section {
+            padding: 60px 0;
+        }
+        .section-title {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .section-sub {
+            color: var(--text-sub);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        /* ========== Cards ========== */
+        .card {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .card-icon.blue { background: #ebf4ff; }
+        .card-icon.green { background: #f0fff4; }
+        .card-icon.orange { background: #fffbeb; }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* ========== 3-Sheet Structure ========== */
+        .sheets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        @media (max-width: 900px) {
+            .sheets-grid { grid-template-columns: 1fr; }
+        }
+        .sheet-card {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            border-top: 4px solid var(--accent);
+            transition: transform 0.2s;
+        }
+        .sheet-card:hover { transform: translateY(-2px); }
+        .sheet-num {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .sheet-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .sheet-desc {
+            color: var(--text-sub);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .feature-list {
+            list-style: none;
+            font-size: 13px;
+        }
+        .feature-list li {
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+            color: var(--text-sub);
+        }
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* ========== Tab Navigation ========== */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 24px;
+            gap: 0;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .tab-btn:hover {
+            color: var(--accent);
+        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ========== WBS Table ========== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        thead th {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            position: sticky;
+            top: 0;
+        }
+        tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        tbody tr:hover { background: #f7fafc; }
+
+        /* Status badges */
+        .status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-done { background: #c6f6d5; color: var(--success); }
+        .status-active { background: #fefcbf; color: var(--warning); }
+        .status-todo { background: #e2e8f0; color: #718096; }
+        .status-late { background: #fed7d7; color: var(--error); }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 80px;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .progress-fill.low { background: var(--error); }
+        .progress-fill.mid { background: var(--warning); }
+        .progress-fill.high { background: var(--success); }
+        .progress-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* ========== Gantt Chart ========== */
+        .gantt-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .gantt-table {
+            min-width: 1200px;
+        }
+        .gantt-table thead th {
+            padding: 6px 0;
+            text-align: center;
+            font-size: 11px;
+            min-width: 28px;
+        }
+        .gantt-table thead th.month-header {
+            background: #1a365d;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .gantt-table thead th.weekend {
+            background: #2d4a7a;
+        }
+        .gantt-table thead th.today-header {
+            background: var(--error);
+        }
+        .gantt-table thead th.task-col {
+            min-width: auto;
+            text-align: left;
+            padding: 6px 12px;
+        }
+        .gantt-table tbody td {
+            padding: 8px 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            min-width: 28px;
+            position: relative;
+        }
+        .gantt-table tbody td.task-cell {
+            text-align: left;
+            padding: 8px 12px;
+            white-space: nowrap;
+            min-width: auto;
+        }
+        .gantt-bar {
+            height: 18px;
+            border-radius: 3px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 1px;
+            right: 1px;
+        }
+        .gantt-bar.plan { background: #4299e1; }
+        .gantt-bar.progress { background: #ed8936; }
+        .gantt-bar.done { background: #48bb78; }
+        .gantt-cell-plan { background: #ebf8ff; }
+        .gantt-cell-progress { background: #feebc8; }
+        .gantt-cell-done { background: #c6f6d5; }
+        .gantt-cell-weekend { background: #f7fafc; }
+        .gantt-cell-today {
+            border-left: 3px solid var(--error) !important;
+        }
+        .gantt-table tbody td.task-cell.task-name-col {
+            font-weight: 500;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ========== Task Library ========== */
+        .phase-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .phase-inquiry { background: #e2efda; color: #276749; }
+        .phase-order { background: #fce4d6; color: #975a16; }
+        .phase-construction { background: #f2dcdb; color: #c53030; }
+
+        /* ========== Workflow ========== */
+        .workflow {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        @media (max-width: 900px) {
+            .workflow { grid-template-columns: 1fr; }
+        }
+        .workflow-step {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            text-align: center;
+            position: relative;
+        }
+        .workflow-num {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            margin: 0 auto 12px;
+        }
+        .workflow-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .workflow-time {
+            font-family: 'Inter', sans-serif;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .workflow-desc {
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+
+        /* ========== Roadmap ========== */
+        .roadmap {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        @media (max-width: 900px) {
+            .roadmap { grid-template-columns: 1fr; }
+        }
+        .roadmap-card {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            border-left: 4px solid var(--accent);
+        }
+        .roadmap-phase {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .roadmap-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .roadmap-desc {
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+        .roadmap-card.current { border-left-color: var(--success); }
+        .roadmap-card.current .roadmap-phase { color: var(--success); }
+
+        /* ========== Footer ========== */
+        .footer {
+            background: var(--accent);
+            color: rgba(255,255,255,0.8);
+            text-align: center;
+            padding: 32px 24px;
+            font-size: 13px;
+        }
+        .footer strong {
+            color: #fff;
+        }
+
+        /* ========== Filter Controls ========== */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-bar label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+        .filter-bar select {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Noto Sans JP', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ========== Animations ========== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-badge">DEMO VERSION v1.0</div>
+    <h1>WBS・ガントチャートツール</h1>
+    <p>SS部の業務フロー（引合～クロージング）を一元管理する<br>Excel連動型タスク管理ツール</p>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="num">55</div>
+            <div class="label">タスクマスタ</div>
+        </div>
+        <div class="hero-stat">
+            <div class="num">3</div>
+            <div class="label">シート構成</div>
+        </div>
+        <div class="hero-stat">
+            <div class="num">5 min</div>
+            <div class="label">毎日の運用</div>
+        </div>
+    </div>
+</section>
+
+<!-- 3-Sheet Structure -->
+<section class="section">
+    <div class="container">
+        <div class="section-title fade-in">3シート構成</div>
+        <div class="section-sub fade-in">タスクライブラリ → WBS → ガントチャート の連動で二重入力不要</div>
+
+        <div class="sheets-grid">
+            <div class="sheet-card fade-in">
+                <div class="sheet-num">Sheet 1</div>
+                <div class="sheet-name">タスクライブラリ</div>
+                <div class="sheet-desc">SS部業務フローから抽出した55タスクを一元管理するマスタシート</div>
+                <ul class="feature-list">
+                    <li>フェーズ別色分け表示</li>
+                    <li>標準所要日数・担当部門を定義</li>
+                    <li>フィルター機能で絞り込み</li>
+                    <li>タスクの追加・編集・削除対応</li>
+                </ul>
+            </div>
+            <div class="sheet-card fade-in">
+                <div class="sheet-num">Sheet 2</div>
+                <div class="sheet-name">WBS</div>
+                <div class="sheet-desc">プルダウン選択でタスクを登録し、ステータス・進捗を管理</div>
+                <ul class="feature-list">
+                    <li>タスクライブラリからプルダウン選択</li>
+                    <li>ステータス5段階管理</li>
+                    <li>進捗率の自動色分け</li>
+                    <li>所要日数の自動計算</li>
+                    <li>入力バリデーション</li>
+                </ul>
+            </div>
+            <div class="sheet-card fade-in">
+                <div class="sheet-num">Sheet 3</div>
+                <div class="sheet-name">ガントチャート</div>
+                <div class="sheet-desc">WBSの内容を自動反映し、スケジュールを視覚的に表示</div>
+                <ul class="feature-list">
+                    <li>WBS自動連動（数式参照）</li>
+                    <li>計画バー / 進捗バー / 完了バー</li>
+                    <li>今日線で現在位置を表示</li>
+                    <li>土日グレー表示</li>
+                    <li>3ヶ月分の日別カレンダー</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Demo Tabs -->
+<section class="section" style="background: var(--bg);">
+    <div class="container">
+        <div class="section-title fade-in">デモ画面</div>
+        <div class="section-sub fade-in">サンプル案件「〇〇物流センター新設案件」のデータで各シートを再現</div>
+
+        <div class="card fade-in">
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="gantt">ガントチャート</button>
+                <button class="tab-btn" data-tab="wbs">WBS</button>
+                <button class="tab-btn" data-tab="library">タスクライブラリ</button>
+            </div>
+
+            <!-- Gantt Tab -->
+            <div class="tab-panel active" id="tab-gantt">
+                <div class="filter-bar">
+                    <label>表示:</label>
+                    <select id="gantt-filter">
+                        <option value="all">すべて</option>
+                        <option value="done">完了のみ</option>
+                        <option value="active">進行中のみ</option>
+                        <option value="todo">未着手のみ</option>
+                    </select>
+                    <span style="font-size: 12px; color: var(--text-sub); margin-left: auto;">
+                        <span style="display:inline-block;width:12px;height:12px;background:#4299e1;border-radius:2px;vertical-align:middle;"></span> 計画
+                        <span style="display:inline-block;width:12px;height:12px;background:#ed8936;border-radius:2px;vertical-align:middle;margin-left:12px;"></span> 実績
+                        <span style="display:inline-block;width:12px;height:12px;background:#48bb78;border-radius:2px;vertical-align:middle;margin-left:12px;"></span> 完了
+                        <span style="display:inline-block;width:12px;height:12px;background:#c53030;border-radius:2px;vertical-align:middle;margin-left:12px;"></span> 今日
+                    </span>
+                </div>
+                <div class="gantt-wrapper" id="gantt-chart"></div>
+            </div>
+
+            <!-- WBS Tab -->
+            <div class="tab-panel" id="tab-wbs">
+                <div class="filter-bar">
+                    <label>ステータス:</label>
+                    <select id="wbs-filter-status">
+                        <option value="all">すべて</option>
+                        <option value="完了">完了</option>
+                        <option value="進行中">進行中</option>
+                        <option value="未着手">未着手</option>
+                    </select>
+                    <label>担当者:</label>
+                    <select id="wbs-filter-person">
+                        <option value="all">すべて</option>
+                        <option value="田中">田中</option>
+                        <option value="佐藤">佐藤</option>
+                        <option value="鈴木">鈴木</option>
+                    </select>
+                </div>
+                <div class="table-wrapper" id="wbs-table"></div>
+            </div>
+
+            <!-- Library Tab -->
+            <div class="tab-panel" id="tab-library">
+                <div class="filter-bar">
+                    <label>フェーズ:</label>
+                    <select id="lib-filter-phase">
+                        <option value="all">すべて</option>
+                        <option value="引合～提案">引合～提案</option>
+                        <option value="受注">受注</option>
+                        <option value="工事">工事</option>
+                    </select>
+                </div>
+                <div class="table-wrapper" id="library-table"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Workflow -->
+<section class="section">
+    <div class="container">
+        <div class="section-title fade-in">想定運用フロー</div>
+        <div class="section-sub fade-in">導入後の日常運用は毎日わずか5分</div>
+
+        <div class="workflow">
+            <div class="workflow-step fade-in">
+                <div class="workflow-num">1</div>
+                <div class="workflow-title">初期セットアップ</div>
+                <div class="workflow-time">1回のみ</div>
+                <div class="workflow-desc">タスクライブラリの確認・追加 → WBSに案件・タスクを登録 → 担当者・期限を設定</div>
+            </div>
+            <div class="workflow-step fade-in">
+                <div class="workflow-num">2</div>
+                <div class="workflow-title">毎日の運用</div>
+                <div class="workflow-time">約5分</div>
+                <div class="workflow-desc">WBSを開く → ステータスと進捗率を更新 → ガントチャートで全体進捗を確認</div>
+            </div>
+            <div class="workflow-step fade-in">
+                <div class="workflow-num">3</div>
+                <div class="workflow-title">毎週月曜の運用</div>
+                <div class="workflow-time">約30分</div>
+                <div class="workflow-desc">遅延タスクを確認 → スケジュール調整 → 営業会議でガントチャートを画面共有</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Roadmap -->
+<section class="section" style="background: var(--bg);">
+    <div class="container">
+        <div class="section-title fade-in">今後の拡張計画</div>
+        <div class="section-sub fade-in">段階的に機能を拡充し、業務効率を継続的に改善</div>
+
+        <div class="roadmap">
+            <div class="roadmap-card current fade-in">
+                <div class="roadmap-phase">Phase 1 - 現在</div>
+                <div class="roadmap-title">WBS・ガントチャートツール</div>
+                <div class="roadmap-desc">タスクライブラリ、WBS管理、ガントチャート自動生成の基盤構築</div>
+            </div>
+            <div class="roadmap-card fade-in">
+                <div class="roadmap-phase">Phase 2</div>
+                <div class="roadmap-title">Outlookアラート連携</div>
+                <div class="roadmap-desc">タスクの未登録検出、期限リマインダー自動送信による対応漏れ防止</div>
+            </div>
+            <div class="roadmap-card fade-in">
+                <div class="roadmap-phase">Phase 3</div>
+                <div class="roadmap-title">実績データ蓄積・分析</div>
+                <div class="roadmap-desc">タスク実測時間の蓄積、担当者別比較、見積精度の継続的向上</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <strong>WBS・ガントチャートExcelツール</strong> デモ版 v1.0<br>
+    <span style="opacity: 0.7;">SS部 業務フロー管理 | 合同会社TOKZUM</span>
+</footer>
+
+<script>
+// ===== DATA =====
+const TASKS = [
+    { no:1, phase:"引合～提案", process:"引合獲得", task:"引合情報獲得", person:"田中", start:"2026-03-02", end:"2026-03-02", status:"完了", progress:100, deliverable:"引合情報一覧", note:"" },
+    { no:2, phase:"引合～提案", process:"引合獲得", task:"要件ヒアリング", person:"田中", start:"2026-03-03", end:"2026-03-05", status:"完了", progress:100, deliverable:"ヒアリングシート", note:"" },
+    { no:3, phase:"引合～提案", process:"引合獲得", task:"引合仕様内容の検討", person:"佐藤", start:"2026-03-06", end:"2026-03-12", status:"進行中", progress:60, deliverable:"検討資料", note:"追加確認あり" },
+    { no:4, phase:"引合～提案", process:"引合獲得", task:"NDA締結", person:"田中", start:"2026-03-06", end:"2026-03-12", status:"進行中", progress:30, deliverable:"NDA契約書", note:"法務確認中" },
+    { no:5, phase:"引合～提案", process:"工番取得", task:"工番設定要求書発行", person:"田中", start:"2026-03-13", end:"2026-03-13", status:"未着手", progress:0, deliverable:"工番設定要求書", note:"" },
+    { no:6, phase:"引合～提案", process:"工番取得", task:"SEに情報共有", person:"田中", start:"2026-03-13", end:"2026-03-13", status:"未着手", progress:0, deliverable:"案件台帳", note:"" },
+    { no:7, phase:"引合～提案", process:"提案", task:"質問書の作成", person:"佐藤", start:"2026-03-16", end:"2026-03-18", status:"未着手", progress:0, deliverable:"質問書", note:"" },
+    { no:8, phase:"引合～提案", process:"提案", task:"現場ヒアリング", person:"佐藤", start:"2026-03-19", end:"2026-03-23", status:"未着手", progress:0, deliverable:"現場調査報告書", note:"" },
+    { no:9, phase:"引合～提案", process:"システム検討", task:"物量データ受領", person:"鈴木", start:"2026-03-16", end:"2026-03-17", status:"未着手", progress:0, deliverable:"物量データ", note:"" },
+    { no:10, phase:"引合～提案", process:"システム検討", task:"物量チャート作成", person:"鈴木", start:"2026-03-18", end:"2026-03-20", status:"未着手", progress:0, deliverable:"物量チャート", note:"" },
+    { no:11, phase:"引合～提案", process:"見積", task:"見積書作成", person:"田中", start:"2026-03-30", end:"2026-04-01", status:"未着手", progress:0, deliverable:"見積書", note:"" },
+    { no:12, phase:"引合～提案", process:"提案", task:"提案書作成", person:"田中", start:"2026-04-02", end:"2026-04-08", status:"未着手", progress:0, deliverable:"提案書", note:"" },
+];
+
+const LIBRARY = [
+    ["引合～提案","引合獲得","引合情報獲得","引合情報一覧",1,"営業"],
+    ["引合～提案","引合獲得","要件ヒアリング","ヒアリングシート",3,"営業"],
+    ["引合～提案","引合獲得","引合仕様内容の検討","検討資料",5,"営業/SE"],
+    ["引合～提案","引合獲得","NDA締結","NDA契約書",5,"営業"],
+    ["引合～提案","引合獲得","Gr.内情報共有・報告","案件台帳更新",1,"営業"],
+    ["引合～提案","工番取得","工番設定要求書発行（RL工番）","工番設定要求書",1,"営業"],
+    ["引合～提案","工番取得","SEに情報共有（Teams/案件台帳）","案件台帳",1,"営業"],
+    ["引合～提案","方向性決定会議","SEアサイン","アサイン通知",1,"マネージャー"],
+    ["引合～提案","提案","質問書の作成","質問書",3,"SE"],
+    ["引合～提案","提案","現場ヒアリング","現場調査報告書",3,"SE"],
+    ["引合～提案","提案","全体工程表作成（SI）","全体工程表",5,"SE"],
+    ["引合～提案","システム検討（SI）","物量データ受領","物量データ",2,"SE"],
+    ["引合～提案","システム検討（SI）","物量チャート作成","物量チャート",3,"SE"],
+    ["引合～提案","システム検討（SI）","頻度分析","分析レポート",3,"SE"],
+    ["引合～提案","システム検討（SI）","システムフローチャート作成","フローチャート",5,"SE"],
+    ["引合～提案","システム検討（SI）","システム・設備の選定・比較","比較表",5,"SE"],
+    ["引合～提案","モジュール設計/検討","レイアウトモジュール化","モジュール設計図",10,"SE"],
+    ["引合～提案","モジュール設計/検討","概算人員試算","人員計画書",3,"SE"],
+    ["引合～提案","モジュール設計/検討","PPP開催","PPP議事録",1,"SE"],
+    ["引合～提案","原価積算依頼","見積資料作成依頼書発行","依頼書",2,"営業"],
+    ["引合～提案","原価積算依頼","見積方針会議開催","会議議事録",1,"営業/SE"],
+    ["引合～提案","見積","原価情報収集","原価データ",5,"営業"],
+    ["引合～提案","見積","原価精査（精査会議含）","精査結果",3,"営業"],
+    ["引合～提案","見積","見積金額算定","見積計算書",3,"営業"],
+    ["引合～提案","見積","見積書作成","見積書",2,"営業"],
+    ["引合～提案","見積","上長承認","承認済見積書",1,"マネージャー"],
+    ["引合～提案","提案","提案書作成","提案書",5,"営業/SE"],
+    ["引合～提案","提案","プレプレゼン（社内）開催","プレゼン資料",1,"営業/SE"],
+    ["引合～提案","提案","プレゼン（客先）","プレゼン議事録",1,"営業/SE"],
+    ["受注","内示","内示受領","内示書",1,"営業"],
+    ["受注","内示","ひな形作成（CBC）","契約ひな形",3,"営業"],
+    ["受注","契約締結","注文条件確認","条件確認書",2,"営業"],
+    ["受注","契約締結","注文書／契約書発行","契約書",3,"営業"],
+    ["受注","契約締結","注文書／契約書受領","受領記録",1,"営業"],
+    ["受注","契約締結","契約内容確認","確認記録",2,"営業"],
+    ["受注","契約締結","リスク有無確認","リスク評価書",2,"営業"],
+    ["受注","受注","受注工番LE化","LE工番",1,"営業"],
+    ["受注","受注","実行予算算定（500万以下）","実行予算書",3,"営業"],
+    ["受注","受注","受注決定会議","会議議事録",1,"マネージャー"],
+    ["受注","受注","受注確定登録","確定登録",1,"営業"],
+    ["受注","受注","製造指示書の発行","製造指示書",2,"SE"],
+    ["受注","確認図書発行","確認図書作成","確認図書",5,"SE"],
+    ["受注","確認図書発行","顧客提出","提出記録",1,"営業"],
+    ["受注","実行予算","実行予算最終確定","最終実行予算",3,"営業"],
+    ["工事","着工","着工準備","着工準備書類",5,"SE"],
+    ["工事","工事","設計変更対応","設計変更書",5,"SE"],
+    ["工事","工事","設計変更分の見積もり","追加見積書",3,"営業"],
+    ["工事","完工","完工確認","完工確認書",2,"SE"],
+    ["工事","完工","社内検査","検査記録",3,"SE"],
+    ["工事","完工","顧客検収対応","検収記録",3,"営業/SE"],
+    ["工事","完成図書提出","完成図書取りまとめ","完成図書",5,"SE"],
+    ["工事","完成図書提出","完成図書提出","提出記録",1,"営業"],
+    ["工事","請求","納品書・請求書発行","納品書・請求書",2,"営業"],
+    ["工事","請求","納品書・請求書提出","提出記録",1,"営業"],
+    ["工事","クロージング","案件クローズ","クローズ報告",1,"営業"],
+];
+
+const TODAY = new Date(2026, 2, 14); // デモ用の今日
+
+// ===== HELPER =====
+function parseDate(s) {
+    const [y,m,d] = s.split('-').map(Number);
+    return new Date(y, m-1, d);
+}
+function fmtDate(s) {
+    const d = parseDate(s);
+    return `${d.getMonth()+1}/${d.getDate()}`;
+}
+function statusClass(s) {
+    if (s === '完了') return 'status-done';
+    if (s === '進行中') return 'status-active';
+    if (s === '遅延') return 'status-late';
+    return 'status-todo';
+}
+function progressClass(p) {
+    if (p < 30) return 'low';
+    if (p < 70) return 'mid';
+    return 'high';
+}
+function phaseClass(p) {
+    if (p.includes('引合')) return 'phase-inquiry';
+    if (p.includes('受注')) return 'phase-order';
+    return 'phase-construction';
+}
+
+// ===== RENDER GANTT =====
+function renderGantt(filter) {
+    const ganttStart = new Date(2026, 2, 1);
+    const ganttEnd = new Date(2026, 3, 15);
+    const totalDays = Math.floor((ganttEnd - ganttStart) / 86400000) + 1;
+
+    let tasks = TASKS;
+    if (filter && filter !== 'all') {
+        const map = { done:'完了', active:'進行中', todo:'未着手' };
+        tasks = tasks.filter(t => t.status === map[filter]);
+    }
+
+    let html = '<table class="gantt-table"><thead>';
+
+    // Month row
+    html += '<tr>';
+    html += '<th class="task-col" rowspan="2" style="min-width:30px">No</th>';
+    html += '<th class="task-col" rowspan="2" style="min-width:140px">タスク名</th>';
+    html += '<th class="task-col" rowspan="2" style="min-width:50px">担当</th>';
+    html += '<th class="task-col" rowspan="2" style="min-width:50px">状態</th>';
+
+    let months = [];
+    let curMonth = -1;
+    for (let i = 0; i < totalDays; i++) {
+        const d = new Date(ganttStart.getTime() + i * 86400000);
+        if (d.getMonth() !== curMonth) {
+            if (months.length > 0) months[months.length-1].span = i - months[months.length-1].startIdx;
+            months.push({ label: `${d.getFullYear()}年${d.getMonth()+1}月`, startIdx: i });
+            curMonth = d.getMonth();
+        }
+    }
+    months[months.length-1].span = totalDays - months[months.length-1].startIdx;
+    months.forEach(m => { html += `<th class="month-header" colspan="${m.span}">${m.label}</th>`; });
+    html += '</tr>';
+
+    // Day row
+    html += '<tr>';
+    const weekdays = ['日','月','火','水','木','金','土'];
+    for (let i = 0; i < totalDays; i++) {
+        const d = new Date(ganttStart.getTime() + i * 86400000);
+        const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+        const isToday = d.getTime() === TODAY.getTime();
+        let cls = isToday ? 'today-header' : (isWeekend ? 'weekend' : '');
+        html += `<th class="${cls}" title="${d.getMonth()+1}/${d.getDate()}(${weekdays[d.getDay()]})">${d.getDate()}</th>`;
+    }
+    html += '</tr></thead><tbody>';
+
+    tasks.forEach(t => {
+        html += '<tr>';
+        html += `<td class="task-cell" style="text-align:center">${t.no}</td>`;
+        html += `<td class="task-cell task-name-col">${t.task}</td>`;
+        html += `<td class="task-cell" style="text-align:center">${t.person}</td>`;
+        html += `<td class="task-cell"><span class="status ${statusClass(t.status)}">${t.status}</span></td>`;
+
+        const tStart = parseDate(t.start);
+        const tEnd = parseDate(t.end);
+        const daysDuration = Math.floor((tEnd - tStart) / 86400000) + 1;
+        const progressDays = Math.floor(daysDuration * t.progress / 100);
+
+        for (let i = 0; i < totalDays; i++) {
+            const d = new Date(ganttStart.getTime() + i * 86400000);
+            const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+            const isToday = d.getTime() === TODAY.getTime();
+            const inRange = d >= tStart && d <= tEnd;
+            const daysFromStart = Math.floor((d - tStart) / 86400000);
+
+            let cls = [];
+            if (isToday) cls.push('gantt-cell-today');
+            if (inRange) {
+                if (t.status === '完了') cls.push('gantt-cell-done');
+                else if (daysFromStart < progressDays) cls.push('gantt-cell-progress');
+                else cls.push('gantt-cell-plan');
+            } else if (isWeekend) {
+                cls.push('gantt-cell-weekend');
+            }
+            html += `<td class="${cls.join(' ')}"></td>`;
+        }
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('gantt-chart').innerHTML = html;
+}
+
+// ===== RENDER WBS =====
+function renderWBS(filterStatus, filterPerson) {
+    let tasks = TASKS;
+    if (filterStatus && filterStatus !== 'all') tasks = tasks.filter(t => t.status === filterStatus);
+    if (filterPerson && filterPerson !== 'all') tasks = tasks.filter(t => t.person === filterPerson);
+
+    let html = '<table><thead><tr>';
+    ['No','案件名','フェーズ','工程','タスク名','担当者','開始日','終了日','所要日数','ステータス','進捗率','成果物','備考'].forEach(h => {
+        html += `<th>${h}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    tasks.forEach(t => {
+        const start = parseDate(t.start);
+        const end = parseDate(t.end);
+        const days = Math.floor((end - start) / 86400000) + 1;
+        html += '<tr>';
+        html += `<td style="text-align:center">${t.no}</td>`;
+        html += `<td>〇〇物流センター新設案件</td>`;
+        html += `<td><span class="phase-tag ${phaseClass(t.phase)}">${t.phase}</span></td>`;
+        html += `<td>${t.process}</td>`;
+        html += `<td style="font-weight:500">${t.task}</td>`;
+        html += `<td style="text-align:center">${t.person}</td>`;
+        html += `<td>${fmtDate(t.start)}</td>`;
+        html += `<td>${fmtDate(t.end)}</td>`;
+        html += `<td style="text-align:center;font-family:Inter,sans-serif">${days}</td>`;
+        html += `<td><span class="status ${statusClass(t.status)}">${t.status}</span></td>`;
+        html += `<td>
+            <div class="progress-bar"><div class="progress-fill ${progressClass(t.progress)}" style="width:${t.progress}%"></div></div>
+            <span class="progress-text">${t.progress}%</span>
+        </td>`;
+        html += `<td>${t.deliverable}</td>`;
+        html += `<td style="color:var(--text-sub);font-size:12px">${t.note}</td>`;
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('wbs-table').innerHTML = html;
+}
+
+// ===== RENDER LIBRARY =====
+function renderLibrary(filterPhase) {
+    let data = LIBRARY;
+    if (filterPhase && filterPhase !== 'all') data = data.filter(r => r[0] === filterPhase);
+
+    let html = '<table><thead><tr>';
+    ['No','フェーズ','工程','タスク名','標準成果物','標準所要日数','担当部門'].forEach(h => {
+        html += `<th>${h}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    data.forEach((r, i) => {
+        html += '<tr>';
+        html += `<td style="text-align:center">${i+1}</td>`;
+        html += `<td><span class="phase-tag ${phaseClass(r[0])}">${r[0]}</span></td>`;
+        html += `<td>${r[1]}</td>`;
+        html += `<td style="font-weight:500">${r[2]}</td>`;
+        html += `<td>${r[3]}</td>`;
+        html += `<td style="text-align:center;font-family:Inter,sans-serif">${r[4]}日</td>`;
+        html += `<td style="text-align:center">${r[5]}</td>`;
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('library-table').innerHTML = html;
+}
+
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+});
+
+// ===== FILTERS =====
+document.getElementById('gantt-filter').addEventListener('change', e => renderGantt(e.target.value));
+document.getElementById('wbs-filter-status').addEventListener('change', () => {
+    renderWBS(document.getElementById('wbs-filter-status').value, document.getElementById('wbs-filter-person').value);
+});
+document.getElementById('wbs-filter-person').addEventListener('change', () => {
+    renderWBS(document.getElementById('wbs-filter-status').value, document.getElementById('wbs-filter-person').value);
+});
+document.getElementById('lib-filter-phase').addEventListener('change', e => renderLibrary(e.target.value));
+
+// ===== SCROLL ANIMATION =====
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ===== INIT =====
+renderGantt('all');
+renderWBS('all', 'all');
+renderLibrary('all');
+</script>
+</body>
+</html>
